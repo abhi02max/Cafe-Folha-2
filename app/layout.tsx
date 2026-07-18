@@ -15,7 +15,7 @@ const sans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://cafefolha.example"),
+  metadataBase: new URL("https://cafe-folha-nagole.arjunbilla.chatgpt.site"),
   title: "Café Folha | Food, Folks & Good Nights in Nagole",
   description:
     "Café Folha in Nagole, Hyderabad—pizza, pasta, waffles, desserts, coffee and relaxed family dining, open daily until 11 PM.",

@@ -8,14 +8,18 @@ import {
   Clock3,
   MapPin,
   Menu,
+  Minus,
   Phone,
+  Plus,
+  Search,
   ShoppingBag,
   Sparkles,
   Star,
+  Trash2,
   Users,
   X,
 } from "lucide-react";
-import { FormEvent, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 
 const BOOKING_PHONE = "919121139238";
 const MAP_URL = "https://www.google.com/maps?q=17.3707192,78.5715935";
@@ -28,10 +32,66 @@ const reveal = {
   transition: { duration: 0.75, ease: [0.16, 1, 0.3, 1] as const },
 };
 
-const menuGroups = [
-  { number: "01", title: "Stone-baked mood", items: "Pizza · Pasta · Burgers" },
-  { number: "02", title: "Easy afternoon", items: "Sandwiches · Fast bites · Coffee" },
-  { number: "03", title: "Sweet ending", items: "Waffles · Desserts · Beverages" },
+type MenuItem = {
+  id: string;
+  name: string;
+  price: number;
+  category: "Biryani" | "Pizza" | "Starters" | "Comfort" | "Sweet & Sip";
+  diet: "veg" | "nonveg";
+  note?: string;
+};
+
+const fullMenu: MenuItem[] = [
+  { id: "mix-veg-biryani", name: "Mix Veg Biryani", price: 219, category: "Biryani", diet: "veg" },
+  { id: "paneer-biryani", name: "Paneer Biryani", price: 229, category: "Biryani", diet: "veg" },
+  { id: "kaju-biryani", name: "Kaju Biryani", price: 229, category: "Biryani", diet: "veg" },
+  { id: "kaju-paneer-biryani", name: "Kaju Paneer Biryani", price: 239, category: "Biryani", diet: "veg" },
+  { id: "chicken-dum-biryani", name: "Chicken Dum Biryani", price: 269, category: "Biryani", diet: "nonveg", note: "Full" },
+  { id: "chicken-fry-biryani", name: "Chicken Fry Piece Biryani", price: 279, category: "Biryani", diet: "nonveg", note: "Full" },
+  { id: "chicken-lollipop-biryani", name: "Chicken Lollipop Biryani", price: 309, category: "Biryani", diet: "nonveg", note: "4 pcs · Full" },
+  { id: "chicken-65-biryani", name: "Chicken 65 Biryani", price: 299, category: "Biryani", diet: "nonveg", note: "Full" },
+  { id: "mutton-biryani", name: "Mutton Dum / Fry Piece Biryani", price: 339, category: "Biryani", diet: "nonveg" },
+  { id: "fish-biryani", name: "Fish Biryani", price: 279, category: "Biryani", diet: "nonveg" },
+  { id: "prawns-biryani", name: "Prawns Biryani", price: 349, category: "Biryani", diet: "nonveg" },
+  { id: "margherita", name: "Margherita", price: 199, category: "Pizza", diet: "veg", note: "Medium" },
+  { id: "veg-paradise", name: "Veg Paradise", price: 239, category: "Pizza", diet: "veg", note: "Medium" },
+  { id: "veg-loaded", name: "Veg Loaded", price: 259, category: "Pizza", diet: "veg", note: "Medium" },
+  { id: "corn-pizza", name: "Corn Pizza", price: 219, category: "Pizza", diet: "veg", note: "Medium" },
+  { id: "peppy-paneer", name: "Peppy Paneer", price: 249, category: "Pizza", diet: "veg", note: "Medium · Peri peri" },
+  { id: "tandoori-paneer", name: "Tandoori Paneer", price: 259, category: "Pizza", diet: "veg", note: "Medium" },
+  { id: "chicken-peri-peri", name: "Chicken Peri Peri", price: 279, category: "Pizza", diet: "nonveg", note: "Medium" },
+  { id: "bbq-chicken-pizza", name: "BBQ Chicken", price: 289, category: "Pizza", diet: "nonveg", note: "Medium" },
+  { id: "tandoori-chicken-pizza", name: "Tandoori Chicken", price: 289, category: "Pizza", diet: "nonveg", note: "Medium" },
+  { id: "pepperoni-chicken", name: "Pepperoni Chicken", price: 319, category: "Pizza", diet: "nonveg", note: "Medium" },
+  { id: "chilli-garlic-bites", name: "Chilli Garlic Bites", price: 169, category: "Starters", diet: "veg" },
+  { id: "veg-nuggets", name: "Veg Nuggets", price: 189, category: "Starters", diet: "veg" },
+  { id: "cheesy-fries", name: "Cheesy Fries", price: 179, category: "Starters", diet: "veg" },
+  { id: "fried-veg-momos", name: "Fried Veg Momos", price: 159, category: "Starters", diet: "veg" },
+  { id: "paneer-majestic", name: "Paneer Majestic", price: 259, category: "Starters", diet: "veg" },
+  { id: "chicken-loaded-fries", name: "Chicken Loaded Fries", price: 219, category: "Starters", diet: "nonveg" },
+  { id: "fried-chicken-momos", name: "Fried Chicken Momos", price: 199, category: "Starters", diet: "nonveg" },
+  { id: "chicken-popcorn", name: "Chicken Popcorn", price: 169, category: "Starters", diet: "nonveg" },
+  { id: "pepper-chicken", name: "Pepper Chicken", price: 279, category: "Starters", diet: "nonveg" },
+  { id: "veg-burger", name: "Veg Burger", price: 119, category: "Comfort", diet: "veg" },
+  { id: "paneer-burger", name: "Paneer Burger", price: 149, category: "Comfort", diet: "veg" },
+  { id: "chicken-patty-burger", name: "Chicken Patty Burger", price: 139, category: "Comfort", diet: "nonveg" },
+  { id: "chicken-crispy-burger", name: "Chicken Crispy Burger", price: 169, category: "Comfort", diet: "nonveg" },
+  { id: "veg-sandwich", name: "Veg Sandwich", price: 99, category: "Comfort", diet: "veg" },
+  { id: "chicken-sandwich", name: "Chicken Sandwich", price: 139, category: "Comfort", diet: "nonveg" },
+  { id: "alfredo-veg", name: "Alfredo Pasta", price: 259, category: "Comfort", diet: "veg", note: "White sauce" },
+  { id: "alfredo-chicken", name: "Chicken Alfredo Pasta", price: 299, category: "Comfort", diet: "nonveg", note: "White sauce" },
+  { id: "folha-special-veg", name: "Folha Special Pasta", price: 299, category: "Comfort", diet: "veg" },
+  { id: "veg-lasagna", name: "Veg Lasagna", price: 329, category: "Comfort", diet: "veg" },
+  { id: "chicken-lasagna", name: "Chicken Lasagna", price: 379, category: "Comfort", diet: "nonveg" },
+  { id: "mint-mojito", name: "Mint Mojito", price: 129, category: "Sweet & Sip", diet: "veg" },
+  { id: "strawberry-mojito", name: "Strawberry Mojito", price: 129, category: "Sweet & Sip", diet: "veg" },
+  { id: "blue-curacao", name: "Blue Curacao", price: 139, category: "Sweet & Sip", diet: "veg" },
+  { id: "plain-waffle", name: "Plain Waffle", price: 99, category: "Sweet & Sip", diet: "veg" },
+  { id: "chocolate-waffle", name: "Chocolate Waffle", price: 149, category: "Sweet & Sip", diet: "veg" },
+  { id: "nutella-waffle", name: "Nutella Waffle", price: 199, category: "Sweet & Sip", diet: "veg" },
+  { id: "waffle-overloaded", name: "Waffle Overloaded", price: 399, category: "Sweet & Sip", diet: "veg", note: "Strawberry · banana · nuts · ice cream" },
+  { id: "classic-brownie", name: "Classic Brownie", price: 99, category: "Sweet & Sip", diet: "veg" },
+  { id: "sizzling-brownie", name: "Sizzling Brownie", price: 249, category: "Sweet & Sip", diet: "veg" },
 ];
 
 const reviews = [
@@ -58,9 +118,52 @@ const reviews = [
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [dietFilter, setDietFilter] = useState<"all" | "veg" | "nonveg">("all");
+  const [menuSearch, setMenuSearch] = useState("");
+  const [cart, setCart] = useState<Record<string, number>>({});
   const { scrollYProgress } = useScroll();
   const heroY = useTransform(scrollYProgress, [0, 0.35], [0, 120]);
   const heroScale = useTransform(scrollYProgress, [0, 0.35], [1, 1.08]);
+
+  const visibleMenu = useMemo(
+    () =>
+      fullMenu.filter((item) => {
+        const categoryMatch = activeCategory === "All" || item.category === activeCategory;
+        const dietMatch = dietFilter === "all" || item.diet === dietFilter;
+        const searchMatch = item.name.toLowerCase().includes(menuSearch.toLowerCase().trim());
+        return categoryMatch && dietMatch && searchMatch;
+      }),
+    [activeCategory, dietFilter, menuSearch]
+  );
+
+  const cartLines = fullMenu
+    .filter((item) => cart[item.id])
+    .map((item) => ({ ...item, quantity: cart[item.id] }));
+  const cartCount = cartLines.reduce((sum, item) => sum + item.quantity, 0);
+  const cartTotal = cartLines.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  const changeCart = (id: string, change: number) => {
+    setCart((current) => {
+      const nextQuantity = Math.max(0, (current[id] || 0) + change);
+      const next = { ...current };
+      if (nextQuantity === 0) delete next[id];
+      else next[id] = nextQuantity;
+      return next;
+    });
+  };
+
+  const sendCart = () => {
+    if (!cartLines.length) return;
+    const orderLines = cartLines.map(
+      (item) => `${item.quantity} × ${item.name}${item.note ? ` (${item.note})` : ""} — ₹${item.price * item.quantity}`
+    );
+    const text = encodeURIComponent(
+      `Hi Café Folha! I’d like to order:\n\n${orderLines.join("\n")}\n\nEstimated total: ₹${cartTotal}\n\nPlease confirm availability and final amount.`
+    );
+    window.open(`https://wa.me/${BOOKING_PHONE}?text=${text}`, "_blank", "noopener,noreferrer");
+  };
 
   const orderOnline = () => {
     const text = encodeURIComponent(
@@ -260,19 +363,136 @@ export default function Home() {
           </motion.article>
         </div>
 
-        <div className="menu-groups">
-          {menuGroups.map((group) => (
-            <motion.div key={group.number} className="menu-group" {...reveal}>
-              <span>{group.number}</span>
-              <h3>{group.title}</h3>
-              <p>{group.items}</p>
-              <ArrowRight />
-            </motion.div>
-          ))}
+        <motion.div className="menu-catalogue" {...reveal}>
+          <div className="menu-toolbar">
+            <div className="menu-categories" aria-label="Menu categories">
+              {["All", "Biryani", "Pizza", "Starters", "Comfort", "Sweet & Sip"].map((category) => (
+                <button
+                  key={category}
+                  className={activeCategory === category ? "active" : ""}
+                  onClick={() => setActiveCategory(category)}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+            <label className="menu-search">
+              <Search size={17} />
+              <input
+                type="search"
+                value={menuSearch}
+                onChange={(event) => setMenuSearch(event.target.value)}
+                placeholder="Find a craving"
+                aria-label="Search the menu"
+              />
+            </label>
+          </div>
+
+          <div className="diet-row">
+            <span>Show</span>
+            {[
+              { id: "all", label: "Everything" },
+              { id: "veg", label: "Veg" },
+              { id: "nonveg", label: "Non-veg" },
+            ].map((filter) => (
+              <button
+                key={filter.id}
+                className={dietFilter === filter.id ? "active" : ""}
+                onClick={() => setDietFilter(filter.id as "all" | "veg" | "nonveg")}
+              >
+                {filter.id !== "all" && <i className={`diet-dot ${filter.id}`} />}
+                {filter.label}
+              </button>
+            ))}
+            <small>{visibleMenu.length} items</small>
+          </div>
+
+          <div className="catalogue-grid">
+            <AnimatePresence mode="popLayout">
+              {visibleMenu.map((item) => (
+                <motion.article
+                  layout
+                  key={item.id}
+                  className="catalogue-item"
+                  initial={{ opacity: 0, y: 14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.97 }}
+                >
+                  <div className="catalogue-copy">
+                    <i className={`diet-dot ${item.diet}`} aria-label={item.diet === "veg" ? "Vegetarian" : "Non-vegetarian"} />
+                    <div>
+                      <h3>{item.name}</h3>
+                      <p>{item.note || item.category}</p>
+                    </div>
+                  </div>
+                  <div className="catalogue-buy">
+                    <strong>₹{item.price}</strong>
+                    {cart[item.id] ? (
+                      <div className="quantity-control" aria-label={`Quantity for ${item.name}`}>
+                        <button onClick={() => changeCart(item.id, -1)} aria-label={`Remove one ${item.name}`}>
+                          <Minus size={14} />
+                        </button>
+                        <span>{cart[item.id]}</span>
+                        <button onClick={() => changeCart(item.id, 1)} aria-label={`Add another ${item.name}`}>
+                          <Plus size={14} />
+                        </button>
+                      </div>
+                    ) : (
+                      <button className="add-button" onClick={() => changeCart(item.id, 1)}>
+                        Add <Plus size={14} />
+                      </button>
+                    )}
+                  </div>
+                </motion.article>
+              ))}
+            </AnimatePresence>
+          </div>
+
+          {visibleMenu.length === 0 && (
+            <div className="menu-empty">
+              <p>No matches on this page.</p>
+              <button onClick={() => { setMenuSearch(""); setActiveCategory("All"); setDietFilter("all"); }}>
+                Reset filters
+              </button>
+            </div>
+          )}
+
+          <div className="menu-disclaimer">
+            <p>
+              Menu transcribed from Café Folha’s current four-page listing. Prices and availability
+              can change; the café confirms the final amount on WhatsApp.
+            </p>
+            <details>
+              <summary>View original menu pages</summary>
+              <div className="original-menu-grid">
+                {[1, 2, 3, 4].map((page) => (
+                  <a key={page} href={`/menu/menu-${page}.webp`} target="_blank" rel="noreferrer">
+                    <img src={`/menu/menu-${page}.webp`} alt={`Café Folha original menu page ${page}`} />
+                    <span>Page {page} <ArrowRight size={14} /></span>
+                  </a>
+                ))}
+              </div>
+            </details>
+          </div>
+        </motion.div>
+
+        <div className="menu-bottom-row">
+          <button className="text-link" onClick={orderOnline}>
+            Ask the café about another item <ArrowRight size={18} />
+          </button>
+          {cartCount > 0 && (
+            <motion.button
+              className="cart-pill"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              onClick={() => setCartOpen(true)}
+            >
+              <ShoppingBag size={17} />
+              <span>{cartCount} {cartCount === 1 ? "item" : "items"}</span>
+              <strong>₹{cartTotal}</strong>
+            </motion.button>
+          )}
         </div>
-        <button className="text-link" onClick={orderOnline}>
-          Get today’s menu on WhatsApp <ArrowRight size={18} />
-        </button>
       </section>
 
       <section className="space section" id="gallery">
@@ -383,9 +603,87 @@ export default function Home() {
       </footer>
 
       <div className="mobile-actions">
-        <button onClick={orderOnline}><ShoppingBag /> Order</button>
+        <button onClick={() => cartCount ? setCartOpen(true) : document.getElementById("menu")?.scrollIntoView()}>
+          <ShoppingBag /> {cartCount ? `Bag · ${cartCount}` : "Order"}
+        </button>
         <button onClick={() => setBookingOpen(true)}><CalendarDays /> Reserve</button>
       </div>
+
+      <AnimatePresence>
+        {cartOpen && (
+          <motion.div
+            className="booking-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) setCartOpen(false);
+            }}
+          >
+            <motion.aside
+              className="booking-panel cart-panel"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="cart-title"
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 28, stiffness: 240 }}
+            >
+              <button className="booking-close" onClick={() => setCartOpen(false)} aria-label="Close order bag">
+                <X />
+              </button>
+              <p className="eyebrow">Your Folha run</p>
+              <h2 id="cart-title">The good stuff.</h2>
+              {cartLines.length ? (
+                <>
+                  <div className="cart-lines">
+                    {cartLines.map((item) => (
+                      <div className="cart-line" key={item.id}>
+                        <div>
+                          <i className={`diet-dot ${item.diet}`} />
+                          <span>
+                            <strong>{item.name}</strong>
+                            <small>₹{item.price} each</small>
+                          </span>
+                        </div>
+                        <div className="quantity-control">
+                          <button onClick={() => changeCart(item.id, -1)} aria-label={`Remove one ${item.name}`}>
+                            {item.quantity === 1 ? <Trash2 size={14} /> : <Minus size={14} />}
+                          </button>
+                          <span>{item.quantity}</span>
+                          <button onClick={() => changeCart(item.id, 1)} aria-label={`Add another ${item.name}`}>
+                            <Plus size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="cart-total">
+                    <span>Estimated total</span>
+                    <strong>₹{cartTotal}</strong>
+                  </div>
+                  <button className="button button-primary cart-checkout" onClick={sendCart}>
+                    Send order on WhatsApp <ArrowRight />
+                  </button>
+                  <p className="cart-fine-print">
+                    This sends a request, not a paid order. Café Folha will confirm availability,
+                    delivery or pickup, and the final total.
+                  </p>
+                </>
+              ) : (
+                <div className="empty-cart">
+                  <ShoppingBag size={28} />
+                  <p>Your bag is waiting for a plot twist.</p>
+                  <button onClick={() => { setCartOpen(false); document.getElementById("menu")?.scrollIntoView(); }}>
+                    Browse the menu
+                  </button>
+                </div>
+              )}
+            </motion.aside>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {bookingOpen && (
