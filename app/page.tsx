@@ -68,12 +68,22 @@ type LookupResult = {
   passReady?: boolean;
 };
 
+type PassportMember = {
+  code: string;
+  name: string;
+  visits: number;
+  rewards: number;
+  existing?: boolean;
+};
+
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [eventOpen, setEventOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [lookupOpen, setLookupOpen] = useState(false);
+  const [passportOpen, setPassportOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState("All");
   const [dietFilter, setDietFilter] = useState<"all" | "veg" | "nonveg">("all");
   const [menuSearch, setMenuSearch] = useState("");
@@ -91,6 +101,12 @@ export default function Home() {
   const [lookupBusy, setLookupBusy] = useState(false);
   const [lookupError, setLookupError] = useState("");
   const [lookupResult, setLookupResult] = useState<LookupResult | null>(null);
+  const [passportBusy, setPassportBusy] = useState(false);
+  const [passportError, setPassportError] = useState("");
+  const [passportMember, setPassportMember] = useState<PassportMember | null>(null);
+  const [feedbackBusy, setFeedbackBusy] = useState(false);
+  const [feedbackError, setFeedbackError] = useState("");
+  const [feedbackSent, setFeedbackSent] = useState(false);
   const { scrollYProgress } = useScroll();
   const heroY = useTransform(scrollYProgress, [0, 0.35], [0, 120]);
   const heroScale = useTransform(scrollYProgress, [0, 0.35], [1, 1.08]);
@@ -140,6 +156,12 @@ export default function Home() {
     setLookupError("");
     setLookupResult(null);
     setLookupOpen(true);
+  };
+
+  const openPassport = () => {
+    setPassportError("");
+    setPassportMember(null);
+    setPassportOpen(true);
   };
 
   const submitBooking = async (event: FormEvent<HTMLFormElement>) => {
@@ -232,6 +254,48 @@ export default function Home() {
     }
   };
 
+  const submitPassport = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setPassportBusy(true);
+    setPassportError("");
+    const data = new FormData(event.currentTarget);
+    try {
+      const response = await fetch("/api/passport", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.fromEntries(data)),
+      });
+      const result = await response.json() as PassportMember & { error?: string };
+      if (!response.ok || !result.code) throw new Error(result.error || "Unable to open your Passport.");
+      setPassportMember(result);
+    } catch (error) {
+      setPassportError(error instanceof Error ? error.message : "Unable to open your Passport.");
+    } finally {
+      setPassportBusy(false);
+    }
+  };
+
+  const submitFeedback = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setFeedbackBusy(true);
+    setFeedbackError("");
+    const data = new FormData(event.currentTarget);
+    try {
+      const response = await fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.fromEntries(data)),
+      });
+      const result = await response.json() as { ok?: boolean; error?: string };
+      if (!response.ok || !result.ok) throw new Error(result.error || "Unable to save your note.");
+      setFeedbackSent(true);
+    } catch (error) {
+      setFeedbackError(error instanceof Error ? error.message : "Unable to save your note.");
+    } finally {
+      setFeedbackBusy(false);
+    }
+  };
+
   return (
     <main>
       <div className="noise" aria-hidden="true" />
@@ -247,6 +311,7 @@ export default function Home() {
           <a href="#story">Our story</a>
           <a href="#menu">Menu</a>
           <a href="#gallery">The space</a>
+          <a href="#passport">Passport</a>
           <a href="#visit">Visit</a>
           <button className="nav-track" onClick={openLookup}>Track</button>
         </nav>
@@ -271,7 +336,7 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
           >
-            {["story", "menu", "gallery", "visit"].map((item) => (
+            {["story", "menu", "gallery", "passport", "visit"].map((item) => (
               <a key={item} href={`#${item}`} onClick={() => setMenuOpen(false)}>
                 {item === "gallery" ? "The space" : item}
               </a>
@@ -633,10 +698,51 @@ export default function Home() {
         </motion.div>
       </section>
 
+      <section className="passport section" id="passport">
+        <motion.div className="passport-stage" {...reveal}>
+          <motion.div
+            className="passport-card"
+            whileHover={{ rotateX: -5, rotateY: 8, y: -8 }}
+            transition={{ type: "spring", stiffness: 180, damping: 18 }}
+          >
+            <div className="passport-card-top">
+              <span className="brand-mark">F</span>
+              <small>CAFÉ FOLHA · NAGOLE</small>
+            </div>
+            <strong>THE FOLHA<br />PASSPORT</strong>
+            <p>Five good nights. One treat on us.</p>
+            <div className="passport-stamps">
+              {[0, 1, 2, 3, 4].map((stamp) => (
+                <i key={stamp} className={stamp < 2 ? "filled" : ""}>{stamp < 2 ? "F" : stamp + 1}</i>
+              ))}
+            </div>
+            <div className="passport-shine" />
+          </motion.div>
+        </motion.div>
+        <motion.div className="passport-copy" {...reveal}>
+          <div className="section-label light">
+            <span>05</span> Regulars get remembered
+          </div>
+          <h2>Come back.<br /><em>Leave with more.</em></h2>
+          <p>
+            Join the Folha Passport, collect a stamp on qualifying visits, and unlock
+            a café-confirmed reward after five. Your phone number keeps the pass with you.
+          </p>
+          <div className="passport-benefits">
+            <span><Sparkles /> One simple digital pass</span>
+            <span><Star /> Five stamps unlock a reward</span>
+            <span><Phone /> No app download required</span>
+          </div>
+          <button className="button button-primary" onClick={openPassport}>
+            Open my Passport <ArrowRight />
+          </button>
+        </motion.div>
+      </section>
+
       <section className="visit section" id="visit">
         <motion.div className="visit-copy" {...reveal}>
           <div className="section-label light">
-            <span>05</span> Your table is this way
+            <span>06</span> Your table is this way
           </div>
           <h2>Tonight looks good from here.</h2>
           <p>
@@ -677,6 +783,7 @@ export default function Home() {
             <a href={DISTRICT_URL} target="_blank" rel="noreferrer">Book on District</a>
             <a href={MAP_URL} target="_blank" rel="noreferrer">Google Maps</a>
             <button onClick={openLookup}>Track a request</button>
+            <button onClick={() => { setFeedbackSent(false); setFeedbackError(""); setFeedbackOpen(true); }}>Leave feedback</button>
             <a href="https://instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram">
               Instagram
             </a>
@@ -821,6 +928,155 @@ export default function Home() {
                 </div>
               )}
             </motion.aside>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {passportOpen && (
+          <motion.div
+            className="booking-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) setPassportOpen(false);
+            }}
+          >
+            <motion.div
+              className="booking-panel passport-panel"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="passport-title"
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 28, stiffness: 240 }}
+            >
+              <button className="booking-close" onClick={() => setPassportOpen(false)} aria-label="Close Folha Passport">
+                <X />
+              </button>
+              <p className="eyebrow">The regulars’ club</p>
+              <h2 id="passport-title">Your Folha Passport.</h2>
+              {passportMember ? (
+                <div className="passport-live">
+                  <div className="passport-live-head">
+                    <span>CAFÉ FOLHA · MEMBER</span>
+                    <strong>{passportMember.code}</strong>
+                  </div>
+                  <h3>{passportMember.name}</h3>
+                  <p>{passportMember.existing ? "Welcome back." : "Your Passport is open."}</p>
+                  <div className="passport-live-stamps">
+                    {[0, 1, 2, 3, 4].map((stamp) => (
+                      <i key={stamp} className={stamp < passportMember.visits ? "filled" : ""}>
+                        {stamp < passportMember.visits ? "F" : stamp + 1}
+                      </i>
+                    ))}
+                  </div>
+                  <small>{passportMember.visits}/5 stamps · {passportMember.rewards} rewards redeemed</small>
+                  <p className="passport-rule">Show this code to the Café Folha team after a qualifying visit. Rewards and eligibility are confirmed by the café.</p>
+                </div>
+              ) : (
+                <>
+                  <p className="booking-note">
+                    Open or retrieve your digital pass. One phone number keeps one Passport.
+                  </p>
+                  <form onSubmit={submitPassport}>
+                    <label>
+                      Your name
+                      <input name="name" autoComplete="name" placeholder="Name" required />
+                    </label>
+                    <label>
+                      Phone number
+                      <input name="phone" type="tel" inputMode="numeric" autoComplete="tel" placeholder="10-digit mobile number" required />
+                    </label>
+                    <label className="website-field" aria-hidden="true">
+                      Website
+                      <input name="website" tabIndex={-1} autoComplete="off" />
+                    </label>
+                    {passportError && <p className="form-error" role="alert">{passportError}</p>}
+                    <button className="button button-primary" type="submit" disabled={passportBusy}>
+                      {passportBusy ? "Opening Passport…" : "Open my Passport"} <ArrowRight />
+                    </button>
+                  </form>
+                </>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {feedbackOpen && (
+          <motion.div
+            className="booking-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) setFeedbackOpen(false);
+            }}
+          >
+            <motion.div
+              className="booking-panel feedback-panel"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="feedback-title"
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 28, stiffness: 240 }}
+            >
+              <button className="booking-close" onClick={() => setFeedbackOpen(false)} aria-label="Close feedback form">
+                <X />
+              </button>
+              <p className="eyebrow">After the last bite</p>
+              <h2 id="feedback-title">Tell us straight.</h2>
+              {feedbackSent ? (
+                <div className="confirmation-card feedback-confirmation">
+                  <Star />
+                  <p>Note received</p>
+                  <strong>Thank you.</strong>
+                  <small>Your feedback is now with the Café Folha team.</small>
+                </div>
+              ) : (
+                <>
+                  <p className="booking-note">A private note for the team—good, bad, or delightfully specific.</p>
+                  <form onSubmit={submitFeedback}>
+                    <label>
+                      Your name
+                      <input name="name" autoComplete="name" placeholder="Name" required />
+                    </label>
+                    <label>
+                      Phone <span>(optional)</span>
+                      <input name="phone" type="tel" autoComplete="tel" placeholder="+91…" />
+                    </label>
+                    <label>
+                      Your rating
+                      <select name="rating" defaultValue="5">
+                        <option value="5">★★★★★ · Loved it</option>
+                        <option value="4">★★★★ · Very good</option>
+                        <option value="3">★★★ · It was okay</option>
+                        <option value="2">★★ · Needs attention</option>
+                        <option value="1">★ · Please follow up</option>
+                      </select>
+                    </label>
+                    <label>
+                      Your note
+                      <textarea name="message" rows={5} minLength={5} placeholder="Food, service, ambience—tell us what mattered." required />
+                    </label>
+                    <label className="website-field" aria-hidden="true">
+                      Website
+                      <input name="website" tabIndex={-1} autoComplete="off" />
+                    </label>
+                    {feedbackError && <p className="form-error" role="alert">{feedbackError}</p>}
+                    <button className="button button-primary" type="submit" disabled={feedbackBusy}>
+                      {feedbackBusy ? "Saving your note…" : "Send private feedback"} <ArrowRight />
+                    </button>
+                  </form>
+                </>
+              )}
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

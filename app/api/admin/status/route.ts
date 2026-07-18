@@ -1,10 +1,11 @@
 import { eq } from "drizzle-orm";
 import { getChatGPTUser } from "../../../chatgpt-auth";
 import { getDb } from "../../../../db";
-import { eventRequests, orderRequests, reservations } from "../../../../db/schema";
+import { eventRequests, guestFeedback, orderRequests, reservations } from "../../../../db/schema";
 
 const allowedStatuses = new Set(["pending", "confirmed", "completed", "cancelled"]);
 const allowedOrderStatuses = new Set(["pending", "confirmed", "preparing", "ready", "completed", "cancelled"]);
+const allowedFeedbackStatuses = new Set(["new", "reviewed", "archived"]);
 
 export async function PATCH(request: Request) {
   const user = await getChatGPTUser();
@@ -13,7 +14,7 @@ export async function PATCH(request: Request) {
   }
 
   const payload = (await request.json()) as {
-    type?: "reservation" | "event" | "order";
+    type?: "reservation" | "event" | "order" | "feedback";
     id?: string;
     status?: string;
   };
@@ -22,7 +23,9 @@ export async function PATCH(request: Request) {
 
   const validStatus = payload.type === "order"
     ? allowedOrderStatuses.has(status)
-    : allowedStatuses.has(status);
+    : payload.type === "feedback"
+      ? allowedFeedbackStatuses.has(status)
+      : allowedStatuses.has(status);
   if (!id || !payload.type || !validStatus) {
     return Response.json({ error: "Invalid status update." }, { status: 400 });
   }
@@ -38,11 +41,16 @@ export async function PATCH(request: Request) {
       .update(eventRequests)
       .set({ status })
       .where(eq(eventRequests.id, id));
-  } else {
+  } else if (payload.type === "order") {
     await db
       .update(orderRequests)
       .set({ status })
       .where(eq(orderRequests.id, id));
+  } else {
+    await db
+      .update(guestFeedback)
+      .set({ status })
+      .where(eq(guestFeedback.id, id));
   }
 
   return Response.json({ ok: true, status });

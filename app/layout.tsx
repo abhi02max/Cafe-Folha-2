@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, DM_Sans } from "next/font/google";
 import "./globals.css";
 
@@ -19,6 +19,18 @@ export const metadata: Metadata = {
   title: "Café Folha | Food, Folks & Good Nights in Nagole",
   description:
     "Café Folha in Nagole, Hyderabad—pizza, pasta, waffles, desserts, coffee and relaxed family dining, open daily until 11 PM.",
+  keywords: [
+    "Cafe Folha",
+    "cafe in Nagole",
+    "restaurants in Nagole",
+    "family restaurant Hyderabad",
+    "pizza Nagole",
+    "biryani Nagole",
+    "waffles Hyderabad",
+  ],
+  alternates: { canonical: "/" },
+  manifest: "/manifest.webmanifest",
+  icons: { icon: "/favicon.svg", apple: "/favicon.svg" },
   openGraph: {
     title: "Café Folha — Food. Folks. Good Nights.",
     description: "Your neighbourhood table in Nagole, Hyderabad.",
@@ -32,10 +44,56 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: "#07191f",
+  colorScheme: "dark light",
+};
+
+const restaurantJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Restaurant",
+  name: "Café Folha",
+  image: "https://cafe-folha-nagole.arjunbilla.chatgpt.site/og.png",
+  url: "https://cafe-folha-nagole.arjunbilla.chatgpt.site",
+  telephone: "+91 91211 39238",
+  priceRange: "₹200–400",
+  servesCuisine: ["Indian", "Pizza", "Pasta", "Cafe", "Desserts"],
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "12/1/570, 1st Floor, Lalitha Nagar, Bandlaguda Road",
+    addressLocality: "Nagole",
+    addressRegion: "Telangana",
+    postalCode: "500068",
+    addressCountry: "IN",
+  },
+  geo: {
+    "@type": "GeoCoordinates",
+    latitude: 17.3707192,
+    longitude: 78.5715935,
+  },
+  openingHoursSpecification: [{
+    "@type": "OpeningHoursSpecification",
+    dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+    opens: "11:00",
+    closes: "23:00",
+  }],
+  aggregateRating: {
+    "@type": "AggregateRating",
+    ratingValue: "4.9",
+    reviewCount: "73",
+  },
+};
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className={`${display.variable} ${sans.variable}`}>{children}</body>
+      <body className={`${display.variable} ${sans.variable}`}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(restaurantJsonLd) }}
+        />
+        {children}
+      </body>
     </html>
   );
 }

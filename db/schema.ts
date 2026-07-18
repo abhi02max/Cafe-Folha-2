@@ -66,3 +66,39 @@ export const orderRequests = sqliteTable(
     index("order_requests_created_at_idx").on(table.createdAt),
   ],
 );
+
+export const loyaltyMembers = sqliteTable(
+  "loyalty_members",
+  {
+    id: text("id").primaryKey(),
+    code: text("code").notNull(),
+    name: text("name").notNull(),
+    phone: text("phone").notNull(),
+    visits: integer("visits").notNull().default(0),
+    rewards: integer("rewards").notNull().default(0),
+    status: text("status").notNull().default("active"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("loyalty_members_code_idx").on(table.code),
+    uniqueIndex("loyalty_members_phone_idx").on(table.phone),
+    index("loyalty_members_status_idx").on(table.status),
+  ],
+);
+
+export const guestFeedback = sqliteTable(
+  "guest_feedback",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    phone: text("phone"),
+    rating: integer("rating").notNull(),
+    message: text("message").notNull(),
+    status: text("status").notNull().default("new"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("guest_feedback_status_idx").on(table.status),
+    index("guest_feedback_created_at_idx").on(table.createdAt),
+  ],
+);

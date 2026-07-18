@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, ChevronLeft, Clock3, LogOut, PartyPopper, ShoppingBag, Users } from "lucide-react";
+import { CalendarDays, ChevronLeft, Clock3, LogOut, PartyPopper, ShoppingBag, Sparkles, Star, Users } from "lucide-react";
 import { useMemo, useState } from "react";
 
 type Reservation = {
@@ -45,6 +45,27 @@ type OrderRequest = {
   createdAt: string;
 };
 
+type LoyaltyMember = {
+  id: string;
+  code: string;
+  name: string;
+  phone: string;
+  visits: number;
+  rewards: number;
+  status: string;
+  createdAt: string;
+};
+
+type GuestFeedback = {
+  id: string;
+  name: string;
+  phone: string | null;
+  rating: number;
+  message: string;
+  status: string;
+  createdAt: string;
+};
+
 const statuses = ["pending", "confirmed", "completed", "cancelled"];
 const orderStatuses = ["pending", "confirmed", "preparing", "ready", "completed", "cancelled"];
 
@@ -53,18 +74,24 @@ export function AdminDashboard({
   reservations: initialReservations,
   events: initialEvents,
   orders: initialOrders,
+  members: initialMembers,
+  feedback: initialFeedback,
   signOutPath,
 }: {
   user: { displayName: string; email: string };
   reservations: Reservation[];
   events: EventRequest[];
   orders: OrderRequest[];
+  members: LoyaltyMember[];
+  feedback: GuestFeedback[];
   signOutPath: string;
 }) {
-  const [activeTab, setActiveTab] = useState<"reservations" | "events" | "orders">("reservations");
+  const [activeTab, setActiveTab] = useState<"reservations" | "events" | "orders" | "passport" | "feedback">("reservations");
   const [reservations, setReservations] = useState(initialReservations);
   const [events, setEvents] = useState(initialEvents);
   const [orders, setOrders] = useState(initialOrders);
+  const [members, setMembers] = useState(initialMembers);
+  const [feedback, setFeedback] = useState(initialFeedback);
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const stats = useMemo(
@@ -80,7 +107,7 @@ export function AdminDashboard({
     [events, orders, reservations],
   );
 
-  const updateStatus = async (type: "reservation" | "event" | "order", id: string, status: string) => {
+  const updateStatus = async (type: "reservation" | "event" | "order" | "feedback", id: string, status: string) => {
     setBusyId(id);
     try {
       const response = await fetch("/api/admin/status", {
@@ -93,9 +120,27 @@ export function AdminDashboard({
         setReservations((items) => items.map((item) => item.id === id ? { ...item, status } : item));
       } else if (type === "event") {
         setEvents((items) => items.map((item) => item.id === id ? { ...item, status } : item));
-      } else {
+      } else if (type === "order") {
         setOrders((items) => items.map((item) => item.id === id ? { ...item, status } : item));
+      } else {
+        setFeedback((items) => items.map((item) => item.id === id ? { ...item, status } : item));
       }
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const updatePassport = async (id: string, action: "stamp" | "redeem") => {
+    setBusyId(id);
+    try {
+      const response = await fetch("/api/admin/loyalty", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, action }),
+      });
+      const result = await response.json() as { member?: LoyaltyMember };
+      if (!response.ok || !result.member) throw new Error("Passport update failed");
+      setMembers((items) => items.map((item) => item.id === id ? result.member! : item));
     } finally {
       setBusyId(null);
     }
@@ -135,6 +180,12 @@ export function AdminDashboard({
           </button>
           <button className={activeTab === "orders" ? "active" : ""} onClick={() => setActiveTab("orders")}>
             Orders <span>{orders.length}</span>
+          </button>
+          <button className={activeTab === "passport" ? "active" : ""} onClick={() => setActiveTab("passport")}>
+            Passport <span>{members.length}</span>
+          </button>
+          <button className={activeTab === "feedback" ? "active" : ""} onClick={() => setActiveTab("feedback")}>
+            Feedback <span>{feedback.length}</span>
           </button>
         </div>
 
@@ -196,7 +247,7 @@ export function AdminDashboard({
               </article>
             )) : <EmptyState label="No event enquiries yet." />}
           </div>
-        ) : (
+        ) : activeTab === "orders" ? (
           <div className="admin-list">
             {orders.length ? orders.map((item) => {
               const lines = parseOrderItems(item.items);
@@ -230,6 +281,59 @@ export function AdminDashboard({
                 </article>
               );
             }) : <EmptyState label="No order requests yet." />}
+          </div>
+        ) : activeTab === "passport" ? (
+          <div className="admin-list">
+            {members.length ? members.map((item) => (
+              <article className="admin-record passport-record" key={item.id}>
+                <div className="record-reference">
+                  <span>{item.code}</span>
+                  <i className="status confirmed">{item.status}</i>
+                </div>
+                <div className="record-main">
+                  <h2>{item.name}</h2>
+                  <p>{item.phone}</p>
+                </div>
+                <div className="record-facts">
+                  <span><Sparkles /> {item.visits}/5 stamps</span>
+                  <span><Star /> {item.rewards} redeemed</span>
+                </div>
+                <div className="passport-mini-stamps" aria-label={`${item.visits} of 5 stamps`}>
+                  {[0, 1, 2, 3, 4].map((stamp) => <i key={stamp} className={stamp < item.visits ? "filled" : ""}>F</i>)}
+                </div>
+                <div className="record-actions">
+                  <button disabled={busyId === item.id} onClick={() => updatePassport(item.id, "stamp")}>Add stamp</button>
+                  <button disabled={busyId === item.id || item.visits < 5} onClick={() => updatePassport(item.id, "redeem")}>Redeem 5</button>
+                </div>
+              </article>
+            )) : <EmptyState label="No Passport members yet." />}
+          </div>
+        ) : (
+          <div className="admin-list">
+            {feedback.length ? feedback.map((item) => (
+              <article className="admin-record feedback-record" key={item.id}>
+                <div className="record-reference">
+                  <span>{item.createdAt.slice(0, 10)}</span>
+                  <i className={`status ${item.status}`}>{item.status}</i>
+                </div>
+                <div className="record-main">
+                  <h2>{item.name}</h2>
+                  <p>{item.phone || "No phone shared"}</p>
+                </div>
+                <div className="record-facts">
+                  <span className="feedback-stars">{Array.from({ length: item.rating }, () => "★").join("")}</span>
+                </div>
+                <p className="record-note">{item.message}</p>
+                <select
+                  value={item.status}
+                  disabled={busyId === item.id}
+                  onChange={(event) => updateStatus("feedback", item.id, event.target.value)}
+                  aria-label={`Update ${item.name} feedback status`}
+                >
+                  {["new", "reviewed", "archived"].map((status) => <option key={status}>{status}</option>)}
+                </select>
+              </article>
+            )) : <EmptyState label="No guest feedback yet." />}
           </div>
         )}
       </section>

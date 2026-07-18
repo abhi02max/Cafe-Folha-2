@@ -1225,6 +1225,139 @@ img {
   letter-spacing: 0.1em;
 }
 
+.passport {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8vw;
+  align-items: center;
+  color: var(--ivory);
+  background:
+    radial-gradient(circle at 18% 20%, rgb(174 85 63 / 28%), transparent 30%),
+    var(--ink);
+}
+
+.passport-stage {
+  min-height: 560px;
+  display: grid;
+  place-items: center;
+  perspective: 1200px;
+}
+
+.passport-card {
+  position: relative;
+  width: min(100%, 560px);
+  min-height: 355px;
+  padding: 35px;
+  overflow: hidden;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 85% 12%, rgb(255 255 255 / 45%), transparent 24%),
+    linear-gradient(135deg, #f2ab54, #db7f55 58%, #a84d44);
+  border: 1px solid rgb(255 255 255 / 30%);
+  border-radius: 28px;
+  box-shadow: 0 45px 100px rgb(0 0 0 / 38%);
+  transform-style: preserve-3d;
+}
+
+.passport-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.passport-card-top small {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+}
+
+.passport-card > strong {
+  margin-top: 54px;
+  display: block;
+  font: 600 clamp(3rem, 5vw, 5rem)/0.78 var(--font-display), serif;
+  letter-spacing: -0.045em;
+}
+
+.passport-card > p {
+  margin: 16px 0 30px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.passport-stamps,
+.passport-live-stamps {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 9px;
+}
+
+.passport-stamps i,
+.passport-live-stamps i {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 1px dashed rgb(7 25 31 / 42%);
+  border-radius: 50%;
+  font: 700 1.15rem var(--font-display), serif;
+}
+
+.passport-stamps i.filled,
+.passport-live-stamps i.filled {
+  color: var(--ivory);
+  background: var(--ink);
+  border-style: solid;
+  transform: rotate(-7deg);
+}
+
+.passport-shine {
+  position: absolute;
+  inset: -120% 45% -120% -10%;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 26%), transparent);
+  transform: rotate(17deg);
+  animation: passport-shine 5.5s ease-in-out infinite;
+}
+
+@keyframes passport-shine {
+  0%, 65% { transform: translateX(-140%) rotate(17deg); }
+  100% { transform: translateX(280%) rotate(17deg); }
+}
+
+.passport-copy h2 {
+  margin: 52px 0 0;
+  font: 500 clamp(4rem, 7vw, 7.2rem)/0.8 var(--font-display), serif;
+  letter-spacing: -0.05em;
+}
+
+.passport-copy h2 em {
+  color: var(--amber);
+  font-weight: 400;
+}
+
+.passport-copy > p {
+  max-width: 540px;
+  margin: 28px 0;
+  color: rgb(244 233 210 / 65%);
+  line-height: 1.7;
+}
+
+.passport-benefits {
+  margin-bottom: 34px;
+  display: grid;
+  gap: 12px;
+}
+
+.passport-benefits span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.76rem;
+}
+
+.passport-benefits svg {
+  width: 16px;
+  color: var(--amber);
+}
+
 .visit {
   display: grid;
   grid-template-columns: 1.05fr 0.95fr;
@@ -1526,6 +1659,64 @@ img {
   color: var(--ivory);
   background: var(--rust);
   border-radius: 50%;
+}
+
+.feedback-confirmation > svg {
+  width: 54px;
+  height: 54px;
+  padding: 13px;
+  color: var(--ivory);
+  background: var(--rust);
+  border-radius: 50%;
+}
+
+.passport-live {
+  min-height: 430px;
+  margin-top: 28px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 88% 10%, rgb(255 255 255 / 44%), transparent 22%),
+    linear-gradient(135deg, #f2ab54, #db7f55);
+  border-radius: 22px;
+}
+
+.passport-live-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.passport-live h3 {
+  margin: 72px 0 0;
+  font: 600 3.5rem/0.85 var(--font-display), serif;
+}
+
+.passport-live > p {
+  margin: 12px 0 28px;
+}
+
+.passport-live-stamps {
+  margin-top: auto;
+}
+
+.passport-live > small {
+  margin-top: 15px;
+  font-size: 0.63rem;
+  font-weight: 800;
+}
+
+.passport-live .passport-rule {
+  margin: 24px 0 0;
+  padding-top: 18px;
+  border-top: 1px solid rgb(7 25 31 / 25%);
+  font-size: 0.64rem;
+  line-height: 1.5;
 }
 
 .track-inline {
@@ -1979,6 +2170,75 @@ img {
   background: #bce3c7;
 }
 
+.status.new {
+  color: #7a5518;
+  background: #f3dba7;
+}
+
+.status.reviewed {
+  color: #155934;
+  background: #c6e5ce;
+}
+
+.status.archived {
+  color: #4f5456;
+  background: #d5d8d8;
+}
+
+.passport-mini-stamps {
+  display: flex;
+  gap: 5px;
+}
+
+.passport-mini-stamps i {
+  width: 27px;
+  height: 27px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgb(7 25 31 / 24%);
+  border-radius: 50%;
+  font-size: 0.58rem;
+  font-style: normal;
+}
+
+.passport-mini-stamps i.filled {
+  color: var(--ivory);
+  background: var(--rust);
+  border-color: var(--rust);
+}
+
+.record-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.record-actions button {
+  min-height: 38px;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid rgb(7 25 31 / 24%);
+  cursor: pointer;
+  font-size: 0.61rem;
+  font-weight: 700;
+}
+
+.record-actions button:first-child {
+  color: var(--ivory);
+  background: var(--rust);
+  border-color: var(--rust);
+}
+
+.record-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.feedback-stars {
+  color: var(--rust);
+  letter-spacing: 0.12em;
+}
+
 .status.cancelled {
   color: #7d2923;
   background: #eac5bf;
@@ -2101,7 +2361,7 @@ img {
     display: none;
   }
 
-  .story-grid, .space-heading, .tracking, .visit {
+  .story-grid, .space-heading, .tracking, .passport, .visit {
     grid-template-columns: 1fr;
   }
 
@@ -2207,7 +2467,8 @@ img {
 
   .record-facts,
   .record-note,
-  .admin-record > select {
+  .admin-record > select,
+  .record-actions {
     grid-column: 1 / 3;
   }
 }
@@ -2395,6 +2656,14 @@ img {
     margin-top: 46px;
   }
 
+  .passport-stage {
+    min-height: 470px;
+  }
+
+  .passport-card {
+    width: min(92%, 560px);
+  }
+
   .visit {
     gap: 55px;
   }
@@ -2513,7 +2782,8 @@ img {
 
   .record-facts,
   .record-note,
-  .admin-record > select {
+  .admin-record > select,
+  .record-actions {
     grid-column: auto;
   }
 }
