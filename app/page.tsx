@@ -9,6 +9,7 @@ import {
   MapPin,
   Menu,
   Minus,
+  PartyPopper,
   Phone,
   Plus,
   Search,
@@ -118,14 +119,27 @@ const reviews = [
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
+  const [eventOpen, setEventOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState("All");
   const [dietFilter, setDietFilter] = useState<"all" | "veg" | "nonveg">("all");
   const [menuSearch, setMenuSearch] = useState("");
   const [cart, setCart] = useState<Record<string, number>>({});
+  const [bookingBusy, setBookingBusy] = useState(false);
+  const [bookingReference, setBookingReference] = useState("");
+  const [bookingError, setBookingError] = useState("");
+  const [eventBusy, setEventBusy] = useState(false);
+  const [eventReference, setEventReference] = useState("");
+  const [eventError, setEventError] = useState("");
   const { scrollYProgress } = useScroll();
   const heroY = useTransform(scrollYProgress, [0, 0.35], [0, 120]);
   const heroScale = useTransform(scrollYProgress, [0, 0.35], [1, 1.08]);
+
+  const openBooking = () => {
+    setBookingReference("");
+    setBookingError("");
+    setBookingOpen(true);
+  };
 
   const visibleMenu = useMemo(
     () =>
@@ -172,18 +186,46 @@ export default function Home() {
     window.open(`https://wa.me/${BOOKING_PHONE}?text=${text}`, "_blank", "noopener,noreferrer");
   };
 
-  const submitBooking = (event: FormEvent<HTMLFormElement>) => {
+  const submitBooking = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setBookingBusy(true);
+    setBookingError("");
     const data = new FormData(event.currentTarget);
-    const text = encodeURIComponent(
-      `Hi Café Folha! I’d like to reserve a table.\n\nName: ${data.get("name")}\nDate: ${data.get(
-        "date"
-      )}\nTime: ${data.get("time")}\nGuests: ${data.get("guests")}\nOccasion: ${
-        data.get("occasion") || "Regular visit"
-      }`
-    );
-    window.open(`https://wa.me/${BOOKING_PHONE}?text=${text}`, "_blank", "noopener,noreferrer");
-    setBookingOpen(false);
+    try {
+      const response = await fetch("/api/reservations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.fromEntries(data)),
+      });
+      const result = await response.json() as { reference?: string; error?: string };
+      if (!response.ok || !result.reference) throw new Error(result.error || "Unable to save your request.");
+      setBookingReference(result.reference);
+    } catch (error) {
+      setBookingError(error instanceof Error ? error.message : "Unable to save your request.");
+    } finally {
+      setBookingBusy(false);
+    }
+  };
+
+  const submitEvent = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setEventBusy(true);
+    setEventError("");
+    const data = new FormData(event.currentTarget);
+    try {
+      const response = await fetch("/api/events", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.fromEntries(data)),
+      });
+      const result = await response.json() as { reference?: string; error?: string };
+      if (!response.ok || !result.reference) throw new Error(result.error || "Unable to save your event request.");
+      setEventReference(result.reference);
+    } catch (error) {
+      setEventError(error instanceof Error ? error.message : "Unable to save your event request.");
+    } finally {
+      setEventBusy(false);
+    }
   };
 
   return (
@@ -203,7 +245,7 @@ export default function Home() {
           <a href="#gallery">The space</a>
           <a href="#visit">Visit</a>
         </nav>
-        <button className="reserve-button" onClick={() => setBookingOpen(true)}>
+        <button className="reserve-button" onClick={openBooking}>
           Reserve a table <ArrowRight size={16} />
         </button>
         <button
@@ -229,7 +271,7 @@ export default function Home() {
                 {item === "gallery" ? "The space" : item}
               </a>
             ))}
-            <button onClick={() => setBookingOpen(true)}>Reserve a table</button>
+            <button onClick={openBooking}>Reserve a table</button>
           </motion.nav>
         )}
       </AnimatePresence>
@@ -260,7 +302,7 @@ export default function Home() {
             and dessert worth staying late for.
           </p>
           <div className="hero-actions">
-            <button className="button button-primary" onClick={() => setBookingOpen(true)}>
+            <button className="button button-primary" onClick={openBooking}>
               <CalendarDays size={18} /> Find a table
             </button>
             <button className="button button-ghost" onClick={orderOnline}>
@@ -519,8 +561,13 @@ export default function Home() {
             <Sparkles size={26} />
             <p>Birthdays, reunions, office hangs.</p>
             <h3>Bring the whole scene.</h3>
-            <button onClick={() => setBookingOpen(true)}>
-              Plan a group table <ArrowRight />
+            <div className="party-options">
+              <span>Birthday table</span>
+              <span>Team evening</span>
+              <span>Private screening</span>
+            </div>
+            <button onClick={() => { setEventReference(""); setEventError(""); setEventOpen(true); }}>
+              Build an event request <ArrowRight />
             </button>
           </motion.div>
         </div>
@@ -567,7 +614,7 @@ export default function Home() {
             <span><MapPin /> Free parking nearby</span>
           </div>
           <div className="visit-actions">
-            <button className="button button-primary" onClick={() => setBookingOpen(true)}>
+            <button className="button button-primary" onClick={openBooking}>
               Reserve a table
             </button>
             <a className="button button-ghost" href={MAP_URL} target="_blank" rel="noreferrer">
@@ -606,7 +653,7 @@ export default function Home() {
         <button onClick={() => cartCount ? setCartOpen(true) : document.getElementById("menu")?.scrollIntoView()}>
           <ShoppingBag /> {cartCount ? `Bag · ${cartCount}` : "Order"}
         </button>
-        <button onClick={() => setBookingOpen(true)}><CalendarDays /> Reserve</button>
+        <button onClick={openBooking}><CalendarDays /> Reserve</button>
       </div>
 
       <AnimatePresence>
@@ -686,6 +733,114 @@ export default function Home() {
       </AnimatePresence>
 
       <AnimatePresence>
+        {eventOpen && (
+          <motion.div
+            className="booking-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) setEventOpen(false);
+            }}
+          >
+            <motion.div
+              className="booking-panel event-panel"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="event-title"
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 28, stiffness: 240 }}
+            >
+              <button className="booking-close" onClick={() => setEventOpen(false)} aria-label="Close event form">
+                <X />
+              </button>
+              <p className="eyebrow">Folha occasions</p>
+              <h2 id="event-title">Build your night.</h2>
+              {eventReference ? (
+                <div className="confirmation-card event-confirmation">
+                  <PartyPopper />
+                  <p>Event request received</p>
+                  <strong>{eventReference}</strong>
+                  <small>
+                    This is an enquiry reference, not a paid ticket. The café will contact
+                    you to confirm the plan, availability and pricing.
+                  </small>
+                  <a
+                    className="button button-primary"
+                    href={`https://wa.me/${BOOKING_PHONE}?text=${encodeURIComponent(
+                      `Hi Café Folha! I’m following up on event request ${eventReference}.`,
+                    )}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Continue on WhatsApp <ArrowRight />
+                  </a>
+                </div>
+              ) : (
+                <>
+                  <p className="booking-note">
+                    Tell us the shape of the celebration. You’ll receive a tracking reference;
+                    Café Folha will follow up with availability and a tailored plan.
+                  </p>
+                  <form onSubmit={submitEvent}>
+                    <label>
+                      Your name
+                      <input name="name" type="text" placeholder="Name" autoComplete="name" required />
+                    </label>
+                    <div className="form-split">
+                      <label>
+                        Phone
+                        <input name="phone" type="tel" placeholder="+91…" autoComplete="tel" required />
+                      </label>
+                      <label>
+                        Email <span>(optional)</span>
+                        <input name="email" type="email" placeholder="you@email.com" autoComplete="email" />
+                      </label>
+                    </div>
+                    <div className="form-split">
+                      <label>
+                        Preferred date
+                        <input name="date" type="date" required />
+                      </label>
+                      <label>
+                        Expected guests
+                        <input name="guests" type="number" min="4" max="80" defaultValue="12" required />
+                      </label>
+                    </div>
+                    <label>
+                      Type of occasion
+                      <select name="eventType" defaultValue="Birthday">
+                        <option>Birthday</option>
+                        <option>Family gathering</option>
+                        <option>Team evening</option>
+                        <option>Private screening</option>
+                        <option>Reunion</option>
+                        <option>Other celebration</option>
+                      </select>
+                    </label>
+                    <label>
+                      Tell us more <span>(optional)</span>
+                      <textarea name="notes" placeholder="Cake, décor, food preferences, timing…" rows={4} />
+                    </label>
+                    <label className="website-field" aria-hidden="true">
+                      Website
+                      <input name="website" tabIndex={-1} autoComplete="off" />
+                    </label>
+                    {eventError && <p className="form-error" role="alert">{eventError}</p>}
+                    <button className="button button-primary" type="submit" disabled={eventBusy}>
+                      {eventBusy ? "Saving request…" : "Create event enquiry"} <ArrowRight />
+                    </button>
+                  </form>
+                </>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
         {bookingOpen && (
           <motion.div
             className="booking-backdrop"
@@ -711,40 +866,88 @@ export default function Home() {
               </button>
               <p className="eyebrow">A table is waiting</p>
               <h2 id="booking-title">Make it a Folha night.</h2>
-              <p className="booking-note">
-                Send a reservation request on WhatsApp. The café will confirm availability.
-              </p>
-              <form onSubmit={submitBooking}>
-                <label>
-                  Your name
-                  <input name="name" type="text" placeholder="Name" required />
-                </label>
-                <div className="form-split">
-                  <label>
-                    Date
-                    <input name="date" type="date" required />
-                  </label>
-                  <label>
-                    Time
-                    <input name="time" type="time" min="11:00" max="23:00" required />
-                  </label>
+              {bookingReference ? (
+                <div className="confirmation-card">
+                  <span className="confirmation-icon">✓</span>
+                  <p>Request received</p>
+                  <strong>{bookingReference}</strong>
+                  <small>
+                    Keep this reference. Your table is pending until Café Folha confirms it.
+                  </small>
+                  <a
+                    className="button button-primary"
+                    href={`https://wa.me/${BOOKING_PHONE}?text=${encodeURIComponent(
+                      `Hi Café Folha! I’m following up on reservation ${bookingReference}.`,
+                    )}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Follow up on WhatsApp <ArrowRight />
+                  </a>
                 </div>
-                <label>
-                  Party size
-                  <select name="guests" defaultValue="2 guests">
-                    {["1 guest", "2 guests", "3 guests", "4 guests", "5 guests", "6+ guests"].map((option) => (
-                      <option key={option}>{option}</option>
-                    ))}
-                  </select>
-                </label>
-                <label>
-                  Occasion <span>(optional)</span>
-                  <input name="occasion" type="text" placeholder="Birthday, family dinner…" />
-                </label>
-                <button className="button button-primary" type="submit">
-                  Send booking request <ArrowRight />
-                </button>
-              </form>
+              ) : (
+                <>
+                  <p className="booking-note">
+                    Send a real reservation request and receive an instant tracking reference.
+                    The café confirms availability separately.
+                  </p>
+                  <form onSubmit={submitBooking}>
+                    <label>
+                      Your name
+                      <input name="name" type="text" placeholder="Name" autoComplete="name" required />
+                    </label>
+                    <div className="form-split">
+                      <label>
+                        Phone
+                        <input name="phone" type="tel" placeholder="+91…" autoComplete="tel" required />
+                      </label>
+                      <label>
+                        Email <span>(optional)</span>
+                        <input name="email" type="email" placeholder="you@email.com" autoComplete="email" />
+                      </label>
+                    </div>
+                    <div className="form-split">
+                      <label>
+                        Date
+                        <input name="date" type="date" required />
+                      </label>
+                      <label>
+                        Time
+                        <input name="time" type="time" min="11:00" max="23:00" required />
+                      </label>
+                    </div>
+                  <label>
+                    Party size
+                    <select name="guests" defaultValue="2">
+                      {[
+                        ["1", "1 guest"],
+                        ["2", "2 guests"],
+                        ["3", "3 guests"],
+                        ["4", "4 guests"],
+                        ["5", "5 guests"],
+                        ["6", "6 guests"],
+                        ["8", "7–8 guests"],
+                        ["12", "9–12 guests"],
+                      ].map(([value, label]) => (
+                        <option key={value} value={value}>{label}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    Occasion <span>(optional)</span>
+                    <input name="occasion" type="text" placeholder="Birthday, family dinner…" />
+                  </label>
+                    <label className="website-field" aria-hidden="true">
+                      Website
+                      <input name="website" tabIndex={-1} autoComplete="off" />
+                    </label>
+                    {bookingError && <p className="form-error" role="alert">{bookingError}</p>}
+                    <button className="button button-primary" type="submit" disabled={bookingBusy}>
+                      {bookingBusy ? "Saving request…" : "Request this table"} <ArrowRight />
+                    </button>
+                  </form>
+                </>
+              )}
               <a className="call-link" href={`tel:+${BOOKING_PHONE}`}>
                 Prefer to call? +91 91211 39238
               </a>
