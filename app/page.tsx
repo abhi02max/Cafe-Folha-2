@@ -21,6 +21,7 @@ import {
   X,
 } from "lucide-react";
 import { FormEvent, useMemo, useState } from "react";
+import { fullMenu } from "./menu-data";
 
 const BOOKING_PHONE = "919121139238";
 const MAP_URL = "https://www.google.com/maps?q=17.3707192,78.5715935";
@@ -32,68 +33,6 @@ const reveal = {
   viewport: { once: true, amount: 0.22 },
   transition: { duration: 0.75, ease: [0.16, 1, 0.3, 1] as const },
 };
-
-type MenuItem = {
-  id: string;
-  name: string;
-  price: number;
-  category: "Biryani" | "Pizza" | "Starters" | "Comfort" | "Sweet & Sip";
-  diet: "veg" | "nonveg";
-  note?: string;
-};
-
-const fullMenu: MenuItem[] = [
-  { id: "mix-veg-biryani", name: "Mix Veg Biryani", price: 219, category: "Biryani", diet: "veg" },
-  { id: "paneer-biryani", name: "Paneer Biryani", price: 229, category: "Biryani", diet: "veg" },
-  { id: "kaju-biryani", name: "Kaju Biryani", price: 229, category: "Biryani", diet: "veg" },
-  { id: "kaju-paneer-biryani", name: "Kaju Paneer Biryani", price: 239, category: "Biryani", diet: "veg" },
-  { id: "chicken-dum-biryani", name: "Chicken Dum Biryani", price: 269, category: "Biryani", diet: "nonveg", note: "Full" },
-  { id: "chicken-fry-biryani", name: "Chicken Fry Piece Biryani", price: 279, category: "Biryani", diet: "nonveg", note: "Full" },
-  { id: "chicken-lollipop-biryani", name: "Chicken Lollipop Biryani", price: 309, category: "Biryani", diet: "nonveg", note: "4 pcs · Full" },
-  { id: "chicken-65-biryani", name: "Chicken 65 Biryani", price: 299, category: "Biryani", diet: "nonveg", note: "Full" },
-  { id: "mutton-biryani", name: "Mutton Dum / Fry Piece Biryani", price: 339, category: "Biryani", diet: "nonveg" },
-  { id: "fish-biryani", name: "Fish Biryani", price: 279, category: "Biryani", diet: "nonveg" },
-  { id: "prawns-biryani", name: "Prawns Biryani", price: 349, category: "Biryani", diet: "nonveg" },
-  { id: "margherita", name: "Margherita", price: 199, category: "Pizza", diet: "veg", note: "Medium" },
-  { id: "veg-paradise", name: "Veg Paradise", price: 239, category: "Pizza", diet: "veg", note: "Medium" },
-  { id: "veg-loaded", name: "Veg Loaded", price: 259, category: "Pizza", diet: "veg", note: "Medium" },
-  { id: "corn-pizza", name: "Corn Pizza", price: 219, category: "Pizza", diet: "veg", note: "Medium" },
-  { id: "peppy-paneer", name: "Peppy Paneer", price: 249, category: "Pizza", diet: "veg", note: "Medium · Peri peri" },
-  { id: "tandoori-paneer", name: "Tandoori Paneer", price: 259, category: "Pizza", diet: "veg", note: "Medium" },
-  { id: "chicken-peri-peri", name: "Chicken Peri Peri", price: 279, category: "Pizza", diet: "nonveg", note: "Medium" },
-  { id: "bbq-chicken-pizza", name: "BBQ Chicken", price: 289, category: "Pizza", diet: "nonveg", note: "Medium" },
-  { id: "tandoori-chicken-pizza", name: "Tandoori Chicken", price: 289, category: "Pizza", diet: "nonveg", note: "Medium" },
-  { id: "pepperoni-chicken", name: "Pepperoni Chicken", price: 319, category: "Pizza", diet: "nonveg", note: "Medium" },
-  { id: "chilli-garlic-bites", name: "Chilli Garlic Bites", price: 169, category: "Starters", diet: "veg" },
-  { id: "veg-nuggets", name: "Veg Nuggets", price: 189, category: "Starters", diet: "veg" },
-  { id: "cheesy-fries", name: "Cheesy Fries", price: 179, category: "Starters", diet: "veg" },
-  { id: "fried-veg-momos", name: "Fried Veg Momos", price: 159, category: "Starters", diet: "veg" },
-  { id: "paneer-majestic", name: "Paneer Majestic", price: 259, category: "Starters", diet: "veg" },
-  { id: "chicken-loaded-fries", name: "Chicken Loaded Fries", price: 219, category: "Starters", diet: "nonveg" },
-  { id: "fried-chicken-momos", name: "Fried Chicken Momos", price: 199, category: "Starters", diet: "nonveg" },
-  { id: "chicken-popcorn", name: "Chicken Popcorn", price: 169, category: "Starters", diet: "nonveg" },
-  { id: "pepper-chicken", name: "Pepper Chicken", price: 279, category: "Starters", diet: "nonveg" },
-  { id: "veg-burger", name: "Veg Burger", price: 119, category: "Comfort", diet: "veg" },
-  { id: "paneer-burger", name: "Paneer Burger", price: 149, category: "Comfort", diet: "veg" },
-  { id: "chicken-patty-burger", name: "Chicken Patty Burger", price: 139, category: "Comfort", diet: "nonveg" },
-  { id: "chicken-crispy-burger", name: "Chicken Crispy Burger", price: 169, category: "Comfort", diet: "nonveg" },
-  { id: "veg-sandwich", name: "Veg Sandwich", price: 99, category: "Comfort", diet: "veg" },
-  { id: "chicken-sandwich", name: "Chicken Sandwich", price: 139, category: "Comfort", diet: "nonveg" },
-  { id: "alfredo-veg", name: "Alfredo Pasta", price: 259, category: "Comfort", diet: "veg", note: "White sauce" },
-  { id: "alfredo-chicken", name: "Chicken Alfredo Pasta", price: 299, category: "Comfort", diet: "nonveg", note: "White sauce" },
-  { id: "folha-special-veg", name: "Folha Special Pasta", price: 299, category: "Comfort", diet: "veg" },
-  { id: "veg-lasagna", name: "Veg Lasagna", price: 329, category: "Comfort", diet: "veg" },
-  { id: "chicken-lasagna", name: "Chicken Lasagna", price: 379, category: "Comfort", diet: "nonveg" },
-  { id: "mint-mojito", name: "Mint Mojito", price: 129, category: "Sweet & Sip", diet: "veg" },
-  { id: "strawberry-mojito", name: "Strawberry Mojito", price: 129, category: "Sweet & Sip", diet: "veg" },
-  { id: "blue-curacao", name: "Blue Curacao", price: 139, category: "Sweet & Sip", diet: "veg" },
-  { id: "plain-waffle", name: "Plain Waffle", price: 99, category: "Sweet & Sip", diet: "veg" },
-  { id: "chocolate-waffle", name: "Chocolate Waffle", price: 149, category: "Sweet & Sip", diet: "veg" },
-  { id: "nutella-waffle", name: "Nutella Waffle", price: 199, category: "Sweet & Sip", diet: "veg" },
-  { id: "waffle-overloaded", name: "Waffle Overloaded", price: 399, category: "Sweet & Sip", diet: "veg", note: "Strawberry · banana · nuts · ice cream" },
-  { id: "classic-brownie", name: "Classic Brownie", price: 99, category: "Sweet & Sip", diet: "veg" },
-  { id: "sizzling-brownie", name: "Sizzling Brownie", price: 249, category: "Sweet & Sip", diet: "veg" },
-];
 
 const reviews = [
   {
@@ -116,11 +55,25 @@ const reviews = [
   },
 ];
 
+type LookupResult = {
+  kind: "reservation" | "event" | "order";
+  reference: string;
+  status: string;
+  title: string;
+  date?: string;
+  time?: string;
+  guests?: number;
+  total?: number;
+  paymentStatus?: string;
+  passReady?: boolean;
+};
+
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [eventOpen, setEventOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
+  const [lookupOpen, setLookupOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState("All");
   const [dietFilter, setDietFilter] = useState<"all" | "veg" | "nonveg">("all");
   const [menuSearch, setMenuSearch] = useState("");
@@ -131,6 +84,13 @@ export default function Home() {
   const [eventBusy, setEventBusy] = useState(false);
   const [eventReference, setEventReference] = useState("");
   const [eventError, setEventError] = useState("");
+  const [orderBusy, setOrderBusy] = useState(false);
+  const [orderReference, setOrderReference] = useState("");
+  const [orderError, setOrderError] = useState("");
+  const [fulfillment, setFulfillment] = useState("Pickup");
+  const [lookupBusy, setLookupBusy] = useState(false);
+  const [lookupError, setLookupError] = useState("");
+  const [lookupResult, setLookupResult] = useState<LookupResult | null>(null);
   const { scrollYProgress } = useScroll();
   const heroY = useTransform(scrollYProgress, [0, 0.35], [0, 120]);
   const heroScale = useTransform(scrollYProgress, [0, 0.35], [1, 1.08]);
@@ -159,6 +119,10 @@ export default function Home() {
   const cartTotal = cartLines.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   const changeCart = (id: string, change: number) => {
+    if (change > 0) {
+      setOrderReference("");
+      setOrderError("");
+    }
     setCart((current) => {
       const nextQuantity = Math.max(0, (current[id] || 0) + change);
       const next = { ...current };
@@ -168,22 +132,14 @@ export default function Home() {
     });
   };
 
-  const sendCart = () => {
-    if (!cartLines.length) return;
-    const orderLines = cartLines.map(
-      (item) => `${item.quantity} × ${item.name}${item.note ? ` (${item.note})` : ""} — ₹${item.price * item.quantity}`
-    );
-    const text = encodeURIComponent(
-      `Hi Café Folha! I’d like to order:\n\n${orderLines.join("\n")}\n\nEstimated total: ₹${cartTotal}\n\nPlease confirm availability and final amount.`
-    );
-    window.open(`https://wa.me/${BOOKING_PHONE}?text=${text}`, "_blank", "noopener,noreferrer");
+  const orderOnline = () => {
+    document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const orderOnline = () => {
-    const text = encodeURIComponent(
-      "Hi Café Folha! I would like to place an order. Please share today’s menu."
-    );
-    window.open(`https://wa.me/${BOOKING_PHONE}?text=${text}`, "_blank", "noopener,noreferrer");
+  const openLookup = () => {
+    setLookupError("");
+    setLookupResult(null);
+    setLookupOpen(true);
   };
 
   const submitBooking = async (event: FormEvent<HTMLFormElement>) => {
@@ -228,6 +184,54 @@ export default function Home() {
     }
   };
 
+  const submitOrder = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!cartLines.length) return;
+    setOrderBusy(true);
+    setOrderError("");
+    const data = new FormData(event.currentTarget);
+    try {
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...Object.fromEntries(data),
+          items: cartLines.map(({ id, name, price, quantity }) => ({ id, name, price, quantity })),
+        }),
+      });
+      const result = await response.json() as { reference?: string; error?: string };
+      if (!response.ok || !result.reference) throw new Error(result.error || "Unable to save your order.");
+      setOrderReference(result.reference);
+      setCart({});
+    } catch (error) {
+      setOrderError(error instanceof Error ? error.message : "Unable to save your order.");
+    } finally {
+      setOrderBusy(false);
+    }
+  };
+
+  const submitLookup = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setLookupBusy(true);
+    setLookupError("");
+    setLookupResult(null);
+    const data = new FormData(event.currentTarget);
+    try {
+      const response = await fetch("/api/lookup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.fromEntries(data)),
+      });
+      const result = await response.json() as LookupResult & { error?: string };
+      if (!response.ok || !result.reference) throw new Error(result.error || "Unable to find that request.");
+      setLookupResult(result);
+    } catch (error) {
+      setLookupError(error instanceof Error ? error.message : "Unable to find that request.");
+    } finally {
+      setLookupBusy(false);
+    }
+  };
+
   return (
     <main>
       <div className="noise" aria-hidden="true" />
@@ -244,6 +248,7 @@ export default function Home() {
           <a href="#menu">Menu</a>
           <a href="#gallery">The space</a>
           <a href="#visit">Visit</a>
+          <button className="nav-track" onClick={openLookup}>Track</button>
         </nav>
         <button className="reserve-button" onClick={openBooking}>
           Reserve a table <ArrowRight size={16} />
@@ -272,6 +277,7 @@ export default function Home() {
               </a>
             ))}
             <button onClick={openBooking}>Reserve a table</button>
+            <button onClick={() => { setMenuOpen(false); openLookup(); }}>Track a request</button>
           </motion.nav>
         )}
       </AnimatePresence>
@@ -598,10 +604,39 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="tracking section" id="track">
+        <motion.div className="tracking-copy" {...reveal}>
+          <div className="section-label">
+            <span>04</span> Folha live desk
+          </div>
+          <h2>Your night,<br /><em>in your pocket.</em></h2>
+          <p>
+            Check a table, order or event request without making another call.
+            Confirmed celebrations unlock a digital Folha pass.
+          </p>
+          <button className="button button-primary" onClick={openLookup}>
+            <Search size={18} /> Track my request
+          </button>
+        </motion.div>
+        <motion.div className="pass-stack" {...reveal}>
+          <div className="folio-pass pass-back">
+            <span>ORDER DESK</span>
+            <strong>Pickup, tracked.</strong>
+            <small>ORDER–7FOLHA</small>
+          </div>
+          <div className="folio-pass pass-front">
+            <span>CAFÉ FOLHA · NAGOLE</span>
+            <strong>GOOD NIGHT PASS</strong>
+            <p>Birthday table · 12 guests</p>
+            <div><i>ADMIT</i><b>EVENT–FOLHA</b></div>
+          </div>
+        </motion.div>
+      </section>
+
       <section className="visit section" id="visit">
         <motion.div className="visit-copy" {...reveal}>
           <div className="section-label light">
-            <span>04</span> Your table is this way
+            <span>05</span> Your table is this way
           </div>
           <h2>Tonight looks good from here.</h2>
           <p>
@@ -641,6 +676,7 @@ export default function Home() {
           <div>
             <a href={DISTRICT_URL} target="_blank" rel="noreferrer">Book on District</a>
             <a href={MAP_URL} target="_blank" rel="noreferrer">Google Maps</a>
+            <button onClick={openLookup}>Track a request</button>
             <a href="https://instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram">
               Instagram
             </a>
@@ -682,7 +718,30 @@ export default function Home() {
               </button>
               <p className="eyebrow">Your Folha run</p>
               <h2 id="cart-title">The good stuff.</h2>
-              {cartLines.length ? (
+              {orderReference ? (
+                <div className="confirmation-card order-confirmation">
+                  <ShoppingBag />
+                  <p>Order request received</p>
+                  <strong>{orderReference}</strong>
+                  <small>
+                    Café Folha will confirm availability, final amount and pickup or delivery.
+                    No payment has been charged.
+                  </small>
+                  <a
+                    className="button button-primary"
+                    href={`https://wa.me/${BOOKING_PHONE}?text=${encodeURIComponent(
+                      `Hi Café Folha! I’m following up on order ${orderReference}.`,
+                    )}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Confirm on WhatsApp <ArrowRight />
+                  </a>
+                  <button className="track-inline" onClick={() => { setCartOpen(false); openLookup(); }}>
+                    Track this order
+                  </button>
+                </div>
+              ) : cartLines.length ? (
                 <>
                   <div className="cart-lines">
                     {cartLines.map((item) => (
@@ -710,12 +769,46 @@ export default function Home() {
                     <span>Estimated total</span>
                     <strong>₹{cartTotal}</strong>
                   </div>
-                  <button className="button button-primary cart-checkout" onClick={sendCart}>
-                    Send order on WhatsApp <ArrowRight />
-                  </button>
+                  <form className="order-checkout-form" onSubmit={submitOrder}>
+                    <div className="form-split">
+                      <label>
+                        Your name
+                        <input name="name" autoComplete="name" placeholder="Name" required />
+                      </label>
+                      <label>
+                        Phone
+                        <input name="phone" type="tel" autoComplete="tel" placeholder="+91…" required />
+                      </label>
+                    </div>
+                    <label>
+                      Fulfilment
+                      <select
+                        name="fulfillment"
+                        value={fulfillment}
+                        onChange={(event) => setFulfillment(event.target.value)}
+                      >
+                        <option>Pickup</option>
+                        <option>Delivery request</option>
+                      </select>
+                    </label>
+                    {fulfillment === "Delivery request" && (
+                      <label>
+                        Delivery address
+                        <textarea name="address" rows={3} placeholder="Full Nagole-area address" required />
+                      </label>
+                    )}
+                    <label className="website-field" aria-hidden="true">
+                      Website
+                      <input name="website" tabIndex={-1} autoComplete="off" />
+                    </label>
+                    {orderError && <p className="form-error" role="alert">{orderError}</p>}
+                    <button className="button button-primary cart-checkout" type="submit" disabled={orderBusy}>
+                      {orderBusy ? "Saving order…" : "Create order request"} <ArrowRight />
+                    </button>
+                  </form>
                   <p className="cart-fine-print">
-                    This sends a request, not a paid order. Café Folha will confirm availability,
-                    delivery or pickup, and the final total.
+                    This creates a tracked request, not a paid order. Café Folha confirms
+                    availability and the final amount before payment.
                   </p>
                 </>
               ) : (
@@ -728,6 +821,93 @@ export default function Home() {
                 </div>
               )}
             </motion.aside>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {lookupOpen && (
+          <motion.div
+            className="booking-backdrop lookup-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) setLookupOpen(false);
+            }}
+          >
+            <motion.div
+              className="booking-panel lookup-panel"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="lookup-title"
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 28, stiffness: 240 }}
+            >
+              <button className="booking-close" onClick={() => setLookupOpen(false)} aria-label="Close request tracker">
+                <X />
+              </button>
+              <p className="eyebrow">Folha live desk</p>
+              <h2 id="lookup-title">Find your night.</h2>
+              <p className="booking-note">
+                Use the reference from your table, event or order confirmation and the same phone number.
+              </p>
+              <form onSubmit={submitLookup}>
+                <label>
+                  Reference
+                  <input name="reference" placeholder="FOLHA-… / EVENT-… / ORDER-…" autoCapitalize="characters" required />
+                </label>
+                <label>
+                  Phone number
+                  <input name="phone" type="tel" autoComplete="tel" placeholder="+91…" required />
+                </label>
+                {lookupError && <p className="form-error" role="alert">{lookupError}</p>}
+                <button className="button button-primary" type="submit" disabled={lookupBusy}>
+                  {lookupBusy ? "Checking…" : "Show my status"} <ArrowRight />
+                </button>
+              </form>
+              {lookupResult && (
+                <motion.div
+                  className={`lookup-result ${lookupResult.kind}`}
+                  initial={{ opacity: 0, y: 18 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <div className="lookup-result-top">
+                    <span>{lookupResult.kind}</span>
+                    <i className={`status ${lookupResult.status}`}>{lookupResult.status}</i>
+                  </div>
+                  <strong>{lookupResult.reference}</strong>
+                  <h3>{lookupResult.title}</h3>
+                  <div className="lookup-facts">
+                    {lookupResult.date && <span><CalendarDays /> {lookupResult.date}</span>}
+                    {lookupResult.time && <span><Clock3 /> {lookupResult.time}</span>}
+                    {lookupResult.guests && <span><Users /> {lookupResult.guests} guests</span>}
+                    {lookupResult.total && <span><ShoppingBag /> ₹{lookupResult.total}</span>}
+                  </div>
+                  {lookupResult.kind === "event" && lookupResult.passReady && (
+                    <div className="digital-pass">
+                      <small>CONFIRMED · DIGITAL PASS</small>
+                      <b>{lookupResult.reference}</b>
+                      <span>Present this reference at Café Folha</span>
+                    </div>
+                  )}
+                  {lookupResult.kind === "order" && (
+                    <p className="payment-state">Payment: {lookupResult.paymentStatus}</p>
+                  )}
+                  <a
+                    href={`https://wa.me/${BOOKING_PHONE}?text=${encodeURIComponent(
+                      `Hi Café Folha! I’m checking on ${lookupResult.reference}.`,
+                    )}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Ask the café on WhatsApp <ArrowRight />
+                  </a>
+                </motion.div>
+              )}
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -777,6 +957,9 @@ export default function Home() {
                   >
                     Continue on WhatsApp <ArrowRight />
                   </a>
+                  <button className="track-inline" onClick={() => { setEventOpen(false); openLookup(); }}>
+                    Track this event
+                  </button>
                 </div>
               ) : (
                 <>
@@ -884,6 +1067,9 @@ export default function Home() {
                   >
                     Follow up on WhatsApp <ArrowRight />
                   </a>
+                  <button className="track-inline" onClick={() => { setBookingOpen(false); openLookup(); }}>
+                    Track this table
+                  </button>
                 </div>
               ) : (
                 <>

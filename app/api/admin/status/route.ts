@@ -1,9 +1,10 @@
 import { eq } from "drizzle-orm";
 import { getChatGPTUser } from "../../../chatgpt-auth";
 import { getDb } from "../../../../db";
-import { eventRequests, reservations } from "../../../../db/schema";
+import { eventRequests, orderRequests, reservations } from "../../../../db/schema";
 
 const allowedStatuses = new Set(["pending", "confirmed", "completed", "cancelled"]);
+const allowedOrderStatuses = new Set(["pending", "confirmed", "preparing", "ready", "completed", "cancelled"]);
 
 export async function PATCH(request: Request) {
   const user = await getChatGPTUser();
@@ -12,14 +13,17 @@ export async function PATCH(request: Request) {
   }
 
   const payload = (await request.json()) as {
-    type?: "reservation" | "event";
+    type?: "reservation" | "event" | "order";
     id?: string;
     status?: string;
   };
   const id = payload.id?.trim() ?? "";
   const status = payload.status?.trim() ?? "";
 
-  if (!id || !payload.type || !allowedStatuses.has(status)) {
+  const validStatus = payload.type === "order"
+    ? allowedOrderStatuses.has(status)
+    : allowedStatuses.has(status);
+  if (!id || !payload.type || !validStatus) {
     return Response.json({ error: "Invalid status update." }, { status: 400 });
   }
 
@@ -29,11 +33,16 @@ export async function PATCH(request: Request) {
       .update(reservations)
       .set({ status })
       .where(eq(reservations.id, id));
-  } else {
+  } else if (payload.type === "event") {
     await db
       .update(eventRequests)
       .set({ status })
       .where(eq(eventRequests.id, id));
+  } else {
+    await db
+      .update(orderRequests)
+      .set({ status })
+      .where(eq(orderRequests.id, id));
   }
 
   return Response.json({ ok: true, status });

@@ -115,13 +115,21 @@ img {
   font-size: 0.82rem;
 }
 
-.desktop-nav a {
+.desktop-nav a,
+.nav-track {
   position: relative;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
   opacity: 0.78;
   transition: opacity 0.2s ease;
 }
 
-.desktop-nav a::after {
+.desktop-nav a::after,
+.nav-track::after {
   content: "";
   position: absolute;
   left: 0;
@@ -132,11 +140,13 @@ img {
   transition: right 0.3s ease;
 }
 
-.desktop-nav a:hover {
+.desktop-nav a:hover,
+.nav-track:hover {
   opacity: 1;
 }
 
-.desktop-nav a:hover::after {
+.desktop-nav a:hover::after,
+.nav-track:hover::after {
   right: 0;
 }
 
@@ -1108,6 +1118,113 @@ img {
   opacity: 0.55;
 }
 
+.tracking {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 8vw;
+  align-items: center;
+  overflow: hidden;
+  background: var(--aqua-pale);
+}
+
+.tracking-copy h2 {
+  margin: 48px 0 0;
+  font: 500 clamp(3.8rem, 7vw, 7rem)/0.82 var(--font-display), serif;
+  letter-spacing: -0.045em;
+}
+
+.tracking-copy h2 em {
+  color: var(--rust);
+  font-weight: 400;
+}
+
+.tracking-copy > p {
+  max-width: 520px;
+  margin: 28px 0 34px;
+  color: rgb(7 25 31 / 64%);
+  line-height: 1.65;
+}
+
+.pass-stack {
+  position: relative;
+  min-height: 510px;
+  display: grid;
+  place-items: center;
+  perspective: 1100px;
+}
+
+.folio-pass {
+  position: absolute;
+  width: min(92%, 570px);
+  min-height: 275px;
+  padding: 34px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 22px;
+  box-shadow: 0 35px 80px rgb(7 25 31 / 20%);
+}
+
+.folio-pass > span,
+.folio-pass small {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.pass-back {
+  color: var(--ink);
+  background: var(--amber);
+  transform: translate(50px, -74px) rotate(8deg);
+}
+
+.pass-back strong {
+  margin-top: auto;
+  font: 500 2.6rem var(--font-display), serif;
+}
+
+.pass-back small {
+  margin-top: 14px;
+}
+
+.pass-front {
+  color: var(--ivory);
+  background:
+    radial-gradient(circle at 90% 12%, rgb(243 170 75 / 35%), transparent 25%),
+    var(--ink);
+  transform: translate(-22px, 48px) rotate(-5deg);
+}
+
+.pass-front strong {
+  margin-top: 58px;
+  font: 600 clamp(2.6rem, 4.6vw, 4.6rem)/0.82 var(--font-display), serif;
+  letter-spacing: -0.04em;
+}
+
+.pass-front p {
+  margin: 16px 0 0;
+  color: rgb(244 233 210 / 62%);
+}
+
+.pass-front div {
+  margin-top: auto;
+  padding-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px dashed rgb(244 233 210 / 32%);
+}
+
+.pass-front i {
+  color: var(--amber);
+  font-size: 0.65rem;
+  font-style: normal;
+  letter-spacing: 0.15em;
+}
+
+.pass-front b {
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+}
+
 .visit {
   display: grid;
   grid-template-columns: 1.05fr 0.95fr;
@@ -1210,10 +1327,20 @@ img {
   gap: 28px;
 }
 
-.footer-bottom div a {
+.footer-bottom div a,
+.footer-bottom div button {
   display: flex;
   align-items: center;
   gap: 7px;
+}
+
+.footer-bottom div button {
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
 }
 
 .footer-bottom > span {
@@ -1392,6 +1519,27 @@ img {
   border-radius: 50%;
 }
 
+.order-confirmation > svg {
+  width: 54px;
+  height: 54px;
+  padding: 13px;
+  color: var(--ivory);
+  background: var(--rust);
+  border-radius: 50%;
+}
+
+.track-inline {
+  margin-top: 17px;
+  padding: 0 0 4px;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
 .call-link {
   margin-top: 24px;
   display: block;
@@ -1470,6 +1618,115 @@ img {
   font-size: 0.65rem;
   line-height: 1.5;
   text-align: center;
+}
+
+.order-checkout-form {
+  padding-top: 22px;
+  border-top: 1px solid rgb(7 25 31 / 18%);
+}
+
+.lookup-panel {
+  width: min(100%, 560px);
+}
+
+.lookup-result {
+  margin-top: 28px;
+  padding: 25px;
+  color: var(--ivory);
+  background: var(--ink);
+  border-radius: 14px;
+}
+
+.lookup-result-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lookup-result-top > span {
+  color: var(--amber);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.lookup-result > strong {
+  margin-top: 28px;
+  display: block;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+}
+
+.lookup-result h3 {
+  margin: 8px 0 0;
+  font: 500 2.5rem/1 var(--font-display), serif;
+}
+
+.lookup-facts {
+  margin-top: 22px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.lookup-facts span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: rgb(244 233 210 / 68%);
+  font-size: 0.66rem;
+}
+
+.lookup-facts svg {
+  width: 15px;
+  color: var(--amber);
+}
+
+.digital-pass {
+  margin-top: 24px;
+  padding: 20px;
+  display: grid;
+  gap: 8px;
+  color: var(--ink);
+  background: var(--amber);
+  border-radius: 10px;
+}
+
+.digital-pass small {
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.digital-pass b {
+  font: 600 1.8rem var(--font-display), serif;
+}
+
+.digital-pass span {
+  font-size: 0.65rem;
+}
+
+.payment-state {
+  margin: 20px 0 0;
+  color: rgb(244 233 210 / 62%);
+  font-size: 0.66rem;
+  text-transform: capitalize;
+}
+
+.lookup-result > a {
+  margin-top: 25px;
+  padding-top: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgb(244 233 210 / 20%);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.lookup-result > a svg {
+  width: 16px;
 }
 
 .empty-cart {
@@ -1712,6 +1969,16 @@ img {
   background: #c6dfe5;
 }
 
+.status.preparing {
+  color: #7a4b18;
+  background: #f1cf9a;
+}
+
+.status.ready {
+  color: #155934;
+  background: #bce3c7;
+}
+
 .status.cancelled {
   color: #7d2923;
   background: #eac5bf;
@@ -1834,7 +2101,7 @@ img {
     display: none;
   }
 
-  .story-grid, .space-heading, .visit {
+  .story-grid, .space-heading, .tracking, .visit {
     grid-template-columns: 1fr;
   }
 
@@ -1895,6 +2162,14 @@ img {
     min-height: 300px;
     border-right: 0;
     border-bottom: 1px solid rgb(7 25 31 / 18%);
+  }
+
+  .tracking {
+    gap: 35px;
+  }
+
+  .pass-stack {
+    min-height: 450px;
   }
 
   .visit-photo {
@@ -2096,6 +2371,28 @@ img {
 
   .review-score > span {
     font-size: 6rem;
+  }
+
+  .tracking-copy h2 {
+    font-size: 4.3rem;
+  }
+
+  .folio-pass {
+    width: 88%;
+    min-height: 240px;
+    padding: 26px;
+  }
+
+  .pass-back {
+    transform: translate(25px, -58px) rotate(7deg);
+  }
+
+  .pass-front {
+    transform: translate(-12px, 48px) rotate(-4deg);
+  }
+
+  .pass-front strong {
+    margin-top: 46px;
   }
 
   .visit {

@@ -8,6 +8,13 @@
       "when": 1784396986114,
       "tag": "0000_faulty_thunderbolts",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1784398252055,
+      "tag": "0001_famous_johnny_storm",
+      "breakpoints": true
     }
   ]
 }

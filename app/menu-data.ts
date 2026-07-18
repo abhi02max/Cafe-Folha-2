@@ -1,0 +1,61 @@
+export type MenuItem = {
+  id: string;
+  name: string;
+  price: number;
+  category: "Biryani" | "Pizza" | "Starters" | "Comfort" | "Sweet & Sip";
+  diet: "veg" | "nonveg";
+  note?: string;
+};
+
+export const fullMenu: MenuItem[] = [
+  { id: "mix-veg-biryani", name: "Mix Veg Biryani", price: 219, category: "Biryani", diet: "veg" },
+  { id: "paneer-biryani", name: "Paneer Biryani", price: 229, category: "Biryani", diet: "veg" },
+  { id: "kaju-biryani", name: "Kaju Biryani", price: 229, category: "Biryani", diet: "veg" },
+  { id: "kaju-paneer-biryani", name: "Kaju Paneer Biryani", price: 239, category: "Biryani", diet: "veg" },
+  { id: "chicken-dum-biryani", name: "Chicken Dum Biryani", price: 269, category: "Biryani", diet: "nonveg", note: "Full" },
+  { id: "chicken-fry-biryani", name: "Chicken Fry Piece Biryani", price: 279, category: "Biryani", diet: "nonveg", note: "Full" },
+  { id: "chicken-lollipop-biryani", name: "Chicken Lollipop Biryani", price: 309, category: "Biryani", diet: "nonveg", note: "4 pcs · Full" },
+  { id: "chicken-65-biryani", name: "Chicken 65 Biryani", price: 299, category: "Biryani", diet: "nonveg", note: "Full" },
+  { id: "mutton-biryani", name: "Mutton Dum / Fry Piece Biryani", price: 339, category: "Biryani", diet: "nonveg" },
+  { id: "fish-biryani", name: "Fish Biryani", price: 279, category: "Biryani", diet: "nonveg" },
+  { id: "prawns-biryani", name: "Prawns Biryani", price: 349, category: "Biryani", diet: "nonveg" },
+  { id: "margherita", name: "Margherita", price: 199, category: "Pizza", diet: "veg", note: "Medium" },
+  { id: "veg-paradise", name: "Veg Paradise", price: 239, category: "Pizza", diet: "veg", note: "Medium" },
+  { id: "veg-loaded", name: "Veg Loaded", price: 259, category: "Pizza", diet: "veg", note: "Medium" },
+  { id: "corn-pizza", name: "Corn Pizza", price: 219, category: "Pizza", diet: "veg", note: "Medium" },
+  { id: "peppy-paneer", name: "Peppy Paneer", price: 249, category: "Pizza", diet: "veg", note: "Medium · Peri peri" },
+  { id: "tandoori-paneer", name: "Tandoori Paneer", price: 259, category: "Pizza", diet: "veg", note: "Medium" },
+  { id: "chicken-peri-peri", name: "Chicken Peri Peri", price: 279, category: "Pizza", diet: "nonveg", note: "Medium" },
+  { id: "bbq-chicken-pizza", name: "BBQ Chicken", price: 289, category: "Pizza", diet: "nonveg", note: "Medium" },
+  { id: "tandoori-chicken-pizza", name: "Tandoori Chicken", price: 289, category: "Pizza", diet: "nonveg", note: "Medium" },
+  { id: "pepperoni-chicken", name: "Pepperoni Chicken", price: 319, category: "Pizza", diet: "nonveg", note: "Medium" },
+  { id: "chilli-garlic-bites", name: "Chilli Garlic Bites", price: 169, category: "Starters", diet: "veg" },
+  { id: "veg-nuggets", name: "Veg Nuggets", price: 189, category: "Starters", diet: "veg" },
+  { id: "cheesy-fries", name: "Cheesy Fries", price: 179, category: "Starters", diet: "veg" },
+  { id: "fried-veg-momos", name: "Fried Veg Momos", price: 159, category: "Starters", diet: "veg" },
+  { id: "paneer-majestic", name: "Paneer Majestic", price: 259, category: "Starters", diet: "veg" },
+  { id: "chicken-loaded-fries", name: "Chicken Loaded Fries", price: 219, category: "Starters", diet: "nonveg" },
+  { id: "fried-chicken-momos", name: "Fried Chicken Momos", price: 199, category: "Starters", diet: "nonveg" },
+  { id: "chicken-popcorn", name: "Chicken Popcorn", price: 169, category: "Starters", diet: "nonveg" },
+  { id: "pepper-chicken", name: "Pepper Chicken", price: 279, category: "Starters", diet: "nonveg" },
+  { id: "veg-burger", name: "Veg Burger", price: 119, category: "Comfort", diet: "veg" },
+  { id: "paneer-burger", name: "Paneer Burger", price: 149, category: "Comfort", diet: "veg" },
+  { id: "chicken-patty-burger", name: "Chicken Patty Burger", price: 139, category: "Comfort", diet: "nonveg" },
+  { id: "chicken-crispy-burger", name: "Chicken Crispy Burger", price: 169, category: "Comfort", diet: "nonveg" },
+  { id: "veg-sandwich", name: "Veg Sandwich", price: 99, category: "Comfort", diet: "veg" },
+  { id: "chicken-sandwich", name: "Chicken Sandwich", price: 139, category: "Comfort", diet: "nonveg" },
+  { id: "alfredo-veg", name: "Alfredo Pasta", price: 259, category: "Comfort", diet: "veg", note: "White sauce" },
+  { id: "alfredo-chicken", name: "Chicken Alfredo Pasta", price: 299, category: "Comfort", diet: "nonveg", note: "White sauce" },
+  { id: "folha-special-veg", name: "Folha Special Pasta", price: 299, category: "Comfort", diet: "veg" },
+  { id: "veg-lasagna", name: "Veg Lasagna", price: 329, category: "Comfort", diet: "veg" },
+  { id: "chicken-lasagna", name: "Chicken Lasagna", price: 379, category: "Comfort", diet: "nonveg" },
+  { id: "mint-mojito", name: "Mint Mojito", price: 129, category: "Sweet & Sip", diet: "veg" },
+  { id: "strawberry-mojito", name: "Strawberry Mojito", price: 129, category: "Sweet & Sip", diet: "veg" },
+  { id: "blue-curacao", name: "Blue Curacao", price: 139, category: "Sweet & Sip", diet: "veg" },
+  { id: "plain-waffle", name: "Plain Waffle", price: 99, category: "Sweet & Sip", diet: "veg" },
+  { id: "chocolate-waffle", name: "Chocolate Waffle", price: 149, category: "Sweet & Sip", diet: "veg" },
+  { id: "nutella-waffle", name: "Nutella Waffle", price: 199, category: "Sweet & Sip", diet: "veg" },
+  { id: "waffle-overloaded", name: "Waffle Overloaded", price: 399, category: "Sweet & Sip", diet: "veg", note: "Strawberry · banana · nuts · ice cream" },
+  { id: "classic-brownie", name: "Classic Brownie", price: 99, category: "Sweet & Sip", diet: "veg" },
+  { id: "sizzling-brownie", name: "Sizzling Brownie", price: 249, category: "Sweet & Sip", diet: "veg" },
+];

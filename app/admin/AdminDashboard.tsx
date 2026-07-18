@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, ChevronLeft, Clock3, LogOut, PartyPopper, Users } from "lucide-react";
+import { CalendarDays, ChevronLeft, Clock3, LogOut, PartyPopper, ShoppingBag, Users } from "lucide-react";
 import { useMemo, useState } from "react";
 
 type Reservation = {
@@ -31,22 +31,40 @@ type EventRequest = {
   createdAt: string;
 };
 
+type OrderRequest = {
+  id: string;
+  reference: string;
+  name: string;
+  phone: string;
+  fulfillment: string;
+  address: string;
+  items: string;
+  total: number;
+  status: string;
+  paymentStatus: string;
+  createdAt: string;
+};
+
 const statuses = ["pending", "confirmed", "completed", "cancelled"];
+const orderStatuses = ["pending", "confirmed", "preparing", "ready", "completed", "cancelled"];
 
 export function AdminDashboard({
   user,
   reservations: initialReservations,
   events: initialEvents,
+  orders: initialOrders,
   signOutPath,
 }: {
   user: { displayName: string; email: string };
   reservations: Reservation[];
   events: EventRequest[];
+  orders: OrderRequest[];
   signOutPath: string;
 }) {
-  const [activeTab, setActiveTab] = useState<"reservations" | "events">("reservations");
+  const [activeTab, setActiveTab] = useState<"reservations" | "events" | "orders">("reservations");
   const [reservations, setReservations] = useState(initialReservations);
   const [events, setEvents] = useState(initialEvents);
+  const [orders, setOrders] = useState(initialOrders);
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const stats = useMemo(
@@ -54,14 +72,15 @@ export function AdminDashboard({
       pending: reservations.filter((item) => item.status === "pending").length,
       today: reservations.filter((item) => item.visitDate === new Date().toISOString().slice(0, 10)).length,
       events: events.filter((item) => item.status === "pending").length,
+      orders: orders.filter((item) => !["completed", "cancelled"].includes(item.status)).length,
       covers: reservations
         .filter((item) => item.status !== "cancelled")
         .reduce((sum, item) => sum + item.guests, 0),
     }),
-    [events, reservations],
+    [events, orders, reservations],
   );
 
-  const updateStatus = async (type: "reservation" | "event", id: string, status: string) => {
+  const updateStatus = async (type: "reservation" | "event" | "order", id: string, status: string) => {
     setBusyId(id);
     try {
       const response = await fetch("/api/admin/status", {
@@ -72,8 +91,10 @@ export function AdminDashboard({
       if (!response.ok) throw new Error("Status update failed");
       if (type === "reservation") {
         setReservations((items) => items.map((item) => item.id === id ? { ...item, status } : item));
-      } else {
+      } else if (type === "event") {
         setEvents((items) => items.map((item) => item.id === id ? { ...item, status } : item));
+      } else {
+        setOrders((items) => items.map((item) => item.id === id ? { ...item, status } : item));
       }
     } finally {
       setBusyId(null);
@@ -101,7 +122,7 @@ export function AdminDashboard({
         <article><span>Pending tables</span><strong>{stats.pending}</strong><CalendarDays /></article>
         <article><span>Today’s tables</span><strong>{stats.today}</strong><Clock3 /></article>
         <article><span>Event enquiries</span><strong>{stats.events}</strong><PartyPopper /></article>
-        <article><span>Booked covers</span><strong>{stats.covers}</strong><Users /></article>
+        <article><span>Open orders</span><strong>{stats.orders}</strong><ShoppingBag /></article>
       </section>
 
       <section className="admin-board">
@@ -111,6 +132,9 @@ export function AdminDashboard({
           </button>
           <button className={activeTab === "events" ? "active" : ""} onClick={() => setActiveTab("events")}>
             Events <span>{events.length}</span>
+          </button>
+          <button className={activeTab === "orders" ? "active" : ""} onClick={() => setActiveTab("orders")}>
+            Orders <span>{orders.length}</span>
           </button>
         </div>
 
@@ -143,7 +167,7 @@ export function AdminDashboard({
               </article>
             )) : <EmptyState label="No reservations yet." />}
           </div>
-        ) : (
+        ) : activeTab === "events" ? (
           <div className="admin-list">
             {events.length ? events.map((item) => (
               <article className="admin-record" key={item.id}>
@@ -172,10 +196,54 @@ export function AdminDashboard({
               </article>
             )) : <EmptyState label="No event enquiries yet." />}
           </div>
+        ) : (
+          <div className="admin-list">
+            {orders.length ? orders.map((item) => {
+              const lines = parseOrderItems(item.items);
+              return (
+                <article className="admin-record order-record" key={item.id}>
+                  <div className="record-reference">
+                    <span>{item.reference}</span>
+                    <i className={`status ${item.status}`}>{item.status}</i>
+                  </div>
+                  <div className="record-main">
+                    <h2>{item.name}</h2>
+                    <p>{item.phone} · {item.fulfillment}</p>
+                  </div>
+                  <div className="record-facts">
+                    <span><ShoppingBag /> {lines.reduce((sum, line) => sum + line.quantity, 0)} items</span>
+                    <span>₹{item.total}</span>
+                    <span>{item.paymentStatus}</span>
+                  </div>
+                  <p className="record-note">
+                    {lines.map((line) => `${line.quantity}× ${line.name}`).join(" · ")}
+                    {item.address ? ` · ${item.address}` : ""}
+                  </p>
+                  <select
+                    value={item.status}
+                    disabled={busyId === item.id}
+                    onChange={(event) => updateStatus("order", item.id, event.target.value)}
+                    aria-label={`Update ${item.reference} status`}
+                  >
+                    {orderStatuses.map((status) => <option key={status}>{status}</option>)}
+                  </select>
+                </article>
+              );
+            }) : <EmptyState label="No order requests yet." />}
+          </div>
         )}
       </section>
     </main>
   );
+}
+
+function parseOrderItems(value: string): Array<{ name: string; quantity: number }> {
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
 }
 
 function EmptyState({ label }: { label: string }) {

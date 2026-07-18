@@ -44,3 +44,25 @@ export const eventRequests = sqliteTable(
     index("event_requests_status_idx").on(table.status),
   ],
 );
+
+export const orderRequests = sqliteTable(
+  "order_requests",
+  {
+    id: text("id").primaryKey(),
+    reference: text("reference").notNull(),
+    name: text("name").notNull(),
+    phone: text("phone").notNull(),
+    fulfillment: text("fulfillment").notNull().default("Pickup"),
+    address: text("address").notNull().default(""),
+    items: text("items").notNull(),
+    total: integer("total").notNull(),
+    status: text("status").notNull().default("pending"),
+    paymentStatus: text("payment_status").notNull().default("unpaid"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("order_requests_reference_idx").on(table.reference),
+    index("order_requests_status_idx").on(table.status),
+    index("order_requests_created_at_idx").on(table.createdAt),
+  ],
+);
