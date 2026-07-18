@@ -20,7 +20,7 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useMemo, useRef, useState } from "react";
 import { fullMenu } from "./menu-data";
 
 const BOOKING_PHONE = "919121139238";
@@ -107,9 +107,22 @@ export default function Home() {
   const [feedbackBusy, setFeedbackBusy] = useState(false);
   const [feedbackError, setFeedbackError] = useState("");
   const [feedbackSent, setFeedbackSent] = useState(false);
+  const [menuExpanded, setMenuExpanded] = useState(false);
+  const clockRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll();
+  const { scrollYProgress: clockProgress } = useScroll({
+    target: clockRef,
+    offset: ["start end", "end start"],
+    layoutEffect: false,
+  });
   const heroY = useTransform(scrollYProgress, [0, 0.35], [0, 120]);
   const heroScale = useTransform(scrollYProgress, [0, 0.35], [1, 1.08]);
+  const morningOpacity = useTransform(clockProgress, [0.04, 0.16, 0.31, 0.42], [0, 1, 1, 0]);
+  const goldenOpacity = useTransform(clockProgress, [0.29, 0.43, 0.6, 0.71], [0, 1, 1, 0]);
+  const nightOpacity = useTransform(clockProgress, [0.58, 0.72, 0.92, 1], [0, 1, 1, 0.82]);
+  const clockImageScale = useTransform(clockProgress, [0, 1], [1.12, 1]);
+  const clockRailY = useTransform(clockProgress, [0, 1], [40, -40]);
+  const clockHandRotate = useTransform(clockProgress, [0, 1], [-75, 115]);
 
   const openBooking = () => {
     setBookingReference("");
@@ -133,6 +146,8 @@ export default function Home() {
     .map((item) => ({ ...item, quantity: cart[item.id] }));
   const cartCount = cartLines.reduce((sum, item) => sum + item.quantity, 0);
   const cartTotal = cartLines.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const hasMenuFilters = activeCategory !== "All" || dietFilter !== "all" || Boolean(menuSearch.trim());
+  const catalogueItems = menuExpanded || hasMenuFilters ? visibleMenu : visibleMenu.slice(0, 12);
 
   const changeCart = (id: string, change: number) => {
     if (change > 0) {
@@ -434,9 +449,51 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="folha-clock" id="clock" ref={clockRef}>
+        <div className="clock-sticky">
+          <div className="clock-visual" aria-hidden="true">
+            <motion.div className="clock-scene" style={{ opacity: morningOpacity, scale: clockImageScale }}>
+              <img src="/folha/folha-3.webp" alt="" />
+              <div className="clock-tint morning" />
+            </motion.div>
+            <motion.div className="clock-scene" style={{ opacity: goldenOpacity, scale: clockImageScale }}>
+              <img src="/folha/folha-1.webp" alt="" />
+              <div className="clock-tint golden" />
+            </motion.div>
+            <motion.div className="clock-scene" style={{ opacity: nightOpacity, scale: clockImageScale }}>
+              <img src="/folha/folha-2.webp" alt="" />
+              <div className="clock-tint night" />
+            </motion.div>
+            <div className="clock-face">
+              <span>11</span><span>5</span><span>8:30</span>
+              <motion.i style={{ rotate: clockHandRotate }} />
+            </div>
+          </div>
+          <motion.div className="clock-rail" style={{ y: clockRailY }}>
+            <div className="section-label light"><span>02</span> The Folha clock</div>
+            <motion.article style={{ opacity: morningOpacity }}>
+              <small>11:00 AM · FIRST PLATES</small>
+              <h2>Brunch starts<br /><em>without rushing.</em></h2>
+              <p>Coolers, golden bites and enough room for the whole family to settle in.</p>
+            </motion.article>
+            <motion.article style={{ opacity: goldenOpacity }}>
+              <small>5:00 PM · GOLDEN HOUR</small>
+              <h2>The table<br /><em>keeps growing.</em></h2>
+              <p>One pizza becomes two. Friends arrive. The soft lights take over.</p>
+            </motion.article>
+            <motion.article style={{ opacity: nightOpacity }}>
+              <small>8:30 PM · GOOD NIGHT MODE</small>
+              <h2>Stay for<br /><em>the last waffle.</em></h2>
+              <p>Dinner, dessert, match-night energy—and no reason to call it early.</p>
+            </motion.article>
+          </motion.div>
+          <div className="clock-progress" aria-hidden="true"><motion.span style={{ scaleX: clockProgress }} /></div>
+        </div>
+      </section>
+
       <section className="signature section" id="menu">
         <motion.div className="section-label light" {...reveal}>
-          <span>02</span> The craving edit
+          <span>03</span> The craving edit
         </motion.div>
         <div className="signature-head">
           <motion.h2 {...reveal}>Pick your plot.</motion.h2>
@@ -522,7 +579,7 @@ export default function Home() {
 
           <div className="catalogue-grid">
             <AnimatePresence mode="popLayout">
-              {visibleMenu.map((item) => (
+              {catalogueItems.map((item) => (
                 <motion.article
                   layout
                   key={item.id}
@@ -560,6 +617,22 @@ export default function Home() {
               ))}
             </AnimatePresence>
           </div>
+
+          {!hasMenuFilters && visibleMenu.length > 12 && (
+            <div className="menu-reveal">
+              <button
+                onClick={() => {
+                  setMenuExpanded((value) => !value);
+                  if (menuExpanded) document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" });
+                }}
+                aria-expanded={menuExpanded}
+              >
+                <span>{menuExpanded ? "Return to the curated edit" : `Explore all ${visibleMenu.length} dishes`}</span>
+                <i>{menuExpanded ? "−" : "+"}</i>
+              </button>
+              <small>{menuExpanded ? "The whole menu, still filterable." : "Biryani, pizza, pasta, starters, desserts and more."}</small>
+            </div>
+          )}
 
           {visibleMenu.length === 0 && (
             <div className="menu-empty">
@@ -611,7 +684,7 @@ export default function Home() {
       <section className="space section" id="gallery">
         <div className="space-heading">
           <motion.div className="section-label" {...reveal}>
-            <span>03</span> Find your corner
+            <span>04</span> Find your corner
           </motion.div>
           <motion.h2 {...reveal}>
             Lit for dates.
@@ -644,6 +717,50 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="mood-section section" id="moods">
+        <div className="mood-heading">
+          <motion.div className="section-label light" {...reveal}>
+            <span>05</span> Choose the energy
+          </motion.div>
+          <motion.h2 {...reveal}>What kind of<br /><em>night is it?</em></motion.h2>
+          <motion.p {...reveal}>Hover into a mood. We’ll point you toward the right corner and the right first plate.</motion.p>
+        </div>
+        <div className="mood-deck">
+          <motion.article className="mood-card mood-date" whileHover={{ y: -10 }}>
+            <img src="/folha/folha-2.webp" alt="A softly lit table at Café Folha" />
+            <div className="mood-shade" />
+            <span>01 · DATE NIGHT</span>
+            <div>
+              <h3>Soft lights.<br />One more course.</h3>
+              <p>Try pizza, a cooler and the sizzling brownie finale.</p>
+              <button onClick={openBooking}>Find a table <ArrowRight /></button>
+            </div>
+          </motion.article>
+          <motion.article className="mood-card mood-family" whileHover={{ y: -10 }}>
+            <img src="/folha/folha-1.webp" alt="Group seating inside Café Folha" />
+            <div className="mood-shade" />
+            <span>02 · FAMILY FEAST</span>
+            <div>
+              <h3>Big table.<br />Bigger spread.</h3>
+              <p>Biryani, starters and enough space for every generation.</p>
+              <button onClick={openBooking}>Reserve the corner <ArrowRight /></button>
+            </div>
+          </motion.article>
+          <motion.article className="mood-card mood-match" whileHover={{ y: -10 }}>
+            <img src="/folha/folha-4.webp" alt="Lounge seating and television at Café Folha" />
+            <div className="mood-shade" />
+            <span>03 · MATCH NIGHT</span>
+            <div>
+              <h3>Screen on.<br />Fries loaded.</h3>
+              <p>Bring the group for a private screening or a loud, easy catch-up.</p>
+              <button onClick={() => { setEventReference(""); setEventError(""); setEventOpen(true); }}>
+                Plan the night <ArrowRight />
+              </button>
+            </div>
+          </motion.article>
+        </div>
+      </section>
+
       <section className="reviews section">
         <motion.div className="review-score" {...reveal}>
           <span>4.9</span>
@@ -672,7 +789,7 @@ export default function Home() {
       <section className="tracking section" id="track">
         <motion.div className="tracking-copy" {...reveal}>
           <div className="section-label">
-            <span>04</span> Folha live desk
+            <span>06</span> Folha live desk
           </div>
           <h2>Your night,<br /><em>in your pocket.</em></h2>
           <p>
@@ -721,7 +838,7 @@ export default function Home() {
         </motion.div>
         <motion.div className="passport-copy" {...reveal}>
           <div className="section-label light">
-            <span>05</span> Regulars get remembered
+            <span>07</span> Regulars get remembered
           </div>
           <h2>Come back.<br /><em>Leave with more.</em></h2>
           <p>
@@ -742,7 +859,7 @@ export default function Home() {
       <section className="visit section" id="visit">
         <motion.div className="visit-copy" {...reveal}>
           <div className="section-label light">
-            <span>06</span> Your table is this way
+            <span>08</span> Your table is this way
           </div>
           <h2>Tonight looks good from here.</h2>
           <p>
