@@ -1448,6 +1448,272 @@ img {
   opacity: 0.55;
 }
 
+.night-composer {
+  color: var(--ivory);
+  background:
+    radial-gradient(circle at 9% 12%, rgb(139 189 183 / 18%), transparent 24%),
+    radial-gradient(circle at 92% 82%, rgb(233 168 74 / 16%), transparent 28%),
+    var(--ink);
+}
+
+.composer-heading {
+  margin-bottom: 72px;
+  display: grid;
+  grid-template-columns: 0.7fr 1.35fr 0.65fr;
+  gap: 5vw;
+  align-items: end;
+}
+
+.composer-heading h2 {
+  margin: 0;
+  font: 500 clamp(4rem, 7vw, 7rem)/0.84 var(--font-display), serif;
+  letter-spacing: -0.05em;
+}
+
+.composer-heading h2 em {
+  color: var(--amber);
+  font-weight: 400;
+}
+
+.composer-heading > p {
+  margin: 0;
+  color: rgb(244 233 210 / 64%);
+  line-height: 1.7;
+}
+
+.composer-grid {
+  display: grid;
+  grid-template-columns: minmax(330px, 0.75fr) minmax(0, 1.25fr);
+  gap: clamp(38px, 7vw, 110px);
+  align-items: center;
+}
+
+.composer-controls {
+  display: grid;
+  gap: 34px;
+}
+
+.composer-controls fieldset {
+  min-width: 0;
+  padding: 0 0 32px;
+  border: 0;
+  border-bottom: 1px solid rgb(244 233 210 / 17%);
+}
+
+.composer-controls fieldset:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.composer-controls legend {
+  margin-bottom: 16px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: rgb(244 233 210 / 62%);
+  font-size: 0.69rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.composer-controls legend span {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  color: var(--amber);
+  border: 1px solid rgb(233 168 74 / 52%);
+  border-radius: 50%;
+  letter-spacing: 0;
+}
+
+.composer-controls fieldset > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.composer-controls button {
+  min-height: 42px;
+  padding: 0 17px;
+  color: var(--ivory);
+  background: transparent;
+  border: 1px solid rgb(244 233 210 / 24%);
+  border-radius: 100px;
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 700;
+  transition: color 0.25s ease, background 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+}
+
+.composer-controls button:hover {
+  transform: translateY(-2px);
+  border-color: var(--aqua);
+}
+
+.composer-controls button.active {
+  color: var(--ink);
+  background: var(--amber);
+  border-color: var(--amber);
+}
+
+.night-ticket {
+  position: relative;
+  min-height: 650px;
+  padding: clamp(30px, 4vw, 58px);
+  color: var(--ink);
+  background:
+    linear-gradient(90deg, transparent 49.8%, rgb(7 25 31 / 8%) 50%, transparent 50.2%) top 112px left / 100% 1px no-repeat,
+    var(--paper);
+  border-radius: 3px;
+  box-shadow: 0 35px 90px rgb(0 0 0 / 34%);
+}
+
+.night-ticket::before,
+.night-ticket::after {
+  content: "";
+  width: 28px;
+  height: 28px;
+  position: absolute;
+  top: 98px;
+  background: var(--ink);
+  border-radius: 50%;
+}
+
+.night-ticket::before {
+  left: -14px;
+}
+
+.night-ticket::after {
+  right: -14px;
+}
+
+.ticket-topline {
+  padding-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px dashed rgb(7 25 31 / 28%);
+  font-size: 0.61rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+}
+
+.ticket-topline b {
+  color: var(--rust);
+}
+
+.night-ticket h3 {
+  max-width: 680px;
+  margin: 36px 0 20px;
+  font: 500 clamp(3.2rem, 5.8vw, 6rem)/0.82 var(--font-display), serif;
+  letter-spacing: -0.05em;
+}
+
+.ticket-route {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.ticket-route span {
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--ivory);
+  background: var(--rust);
+  border-radius: 100px;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.ticket-route svg {
+  width: 14px;
+}
+
+.night-ticket > p {
+  max-width: 600px;
+  margin: 20px 0 28px;
+  color: rgb(7 25 31 / 58%);
+  line-height: 1.6;
+}
+
+.ticket-menu {
+  border-top: 1px solid rgb(7 25 31 / 18%);
+}
+
+.ticket-menu > div {
+  min-height: 55px;
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  border-bottom: 1px solid rgb(7 25 31 / 18%);
+}
+
+.ticket-menu i {
+  color: var(--rust);
+  font-size: 0.58rem;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.ticket-menu span strong,
+.ticket-menu span small {
+  display: block;
+}
+
+.ticket-menu span strong {
+  font: 600 1.05rem var(--font-display), serif;
+}
+
+.ticket-menu span small {
+  margin-top: 3px;
+  color: rgb(7 25 31 / 48%);
+  font-size: 0.6rem;
+}
+
+.ticket-menu > div > b {
+  font-size: 0.72rem;
+}
+
+.ticket-total {
+  padding: 20px 0;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+}
+
+.ticket-total span {
+  color: rgb(7 25 31 / 54%);
+  font-size: 0.65rem;
+}
+
+.ticket-total strong {
+  font: 600 2.3rem/1 var(--font-display), serif;
+}
+
+.ticket-actions {
+  display: flex;
+  gap: 9px;
+}
+
+.ticket-actions .button-ghost {
+  color: var(--ink);
+  border-color: rgb(7 25 31 / 26%);
+}
+
+.ticket-note {
+  margin-top: 16px;
+  display: block;
+  color: rgb(7 25 31 / 48%);
+  font-size: 0.58rem;
+  line-height: 1.5;
+}
+
 .tracking {
   display: grid;
   grid-template-columns: 0.9fr 1.1fr;
@@ -1686,6 +1952,117 @@ img {
 .passport-benefits svg {
   width: 16px;
   color: var(--amber);
+}
+
+.passport-explainer {
+  grid-column: 1 / -1;
+  margin-top: 35px;
+  padding-top: 72px;
+  border-top: 1px solid rgb(244 233 210 / 16%);
+}
+
+.passport-explainer-head {
+  display: grid;
+  grid-template-columns: 0.55fr 1fr 0.8fr;
+  gap: 5vw;
+  align-items: end;
+}
+
+.passport-explainer-head > span {
+  color: var(--amber);
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+}
+
+.passport-explainer-head h3 {
+  margin: 0;
+  font: 500 clamp(2.8rem, 5vw, 5rem)/0.88 var(--font-display), serif;
+  letter-spacing: -0.04em;
+}
+
+.passport-explainer-head p {
+  margin: 0;
+  color: rgb(244 233 210 / 62%);
+  line-height: 1.65;
+}
+
+.passport-journey {
+  margin-top: 55px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid rgb(244 233 210 / 18%);
+  border-bottom: 1px solid rgb(244 233 210 / 18%);
+}
+
+.passport-journey article {
+  min-height: 245px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid rgb(244 233 210 / 18%);
+}
+
+.passport-journey article:last-child {
+  border-right: 0;
+}
+
+.passport-journey i {
+  color: var(--amber);
+  font-size: 0.63rem;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.passport-journey strong {
+  margin-top: auto;
+  font: 500 2rem var(--font-display), serif;
+}
+
+.passport-journey p {
+  margin: 13px 0 0;
+  color: rgb(244 233 210 / 58%);
+  font-size: 0.76rem;
+  line-height: 1.6;
+}
+
+.passport-value {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.passport-value article {
+  padding: 32px;
+  color: var(--ink);
+  background: var(--amber);
+  border-radius: 3px;
+}
+
+.passport-value article:last-child {
+  background: var(--aqua);
+}
+
+.passport-value span {
+  font-size: 0.61rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.passport-value strong {
+  max-width: 470px;
+  margin-top: 30px;
+  display: block;
+  font: 500 clamp(2rem, 3.5vw, 3.5rem)/0.92 var(--font-display), serif;
+  letter-spacing: -0.03em;
+}
+
+.passport-value p {
+  max-width: 500px;
+  margin: 16px 0 0;
+  color: rgb(7 25 31 / 65%);
+  line-height: 1.55;
 }
 
 .visit {
@@ -2788,6 +3165,44 @@ img {
     border-bottom: 1px solid rgb(7 25 31 / 18%);
   }
 
+  .composer-heading {
+    grid-template-columns: 1fr 1.5fr;
+  }
+
+  .composer-heading > p {
+    grid-column: 2;
+  }
+
+  .composer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .composer-controls {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+
+  .composer-controls fieldset,
+  .composer-controls fieldset:last-child {
+    padding: 0 18px 0 0;
+    border-right: 1px solid rgb(244 233 210 / 17%);
+    border-bottom: 0;
+  }
+
+  .composer-controls fieldset:last-child {
+    padding-right: 0;
+    border-right: 0;
+  }
+
+  .composer-controls fieldset > div {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .composer-controls button {
+    width: 100%;
+  }
+
   .tracking {
     gap: 35px;
   }
@@ -2798,6 +3213,14 @@ img {
 
   .visit-photo {
     min-height: 480px;
+  }
+
+  .passport-explainer-head {
+    grid-template-columns: 0.55fr 1.45fr;
+  }
+
+  .passport-explainer-head p {
+    grid-column: 2;
   }
 
   .footer-bottom {
@@ -3074,6 +3497,70 @@ img {
     font-size: 6rem;
   }
 
+  .composer-heading {
+    margin-bottom: 45px;
+    grid-template-columns: 1fr;
+    gap: 26px;
+  }
+
+  .composer-heading h2 {
+    font-size: 4.2rem;
+  }
+
+  .composer-heading > p {
+    grid-column: auto;
+  }
+
+  .composer-controls {
+    grid-template-columns: 1fr;
+    gap: 26px;
+  }
+
+  .composer-controls fieldset,
+  .composer-controls fieldset:last-child {
+    padding: 0 0 26px;
+    border-right: 0;
+    border-bottom: 1px solid rgb(244 233 210 / 17%);
+  }
+
+  .composer-controls fieldset:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+
+  .composer-controls fieldset > div {
+    flex-direction: row;
+  }
+
+  .composer-controls button {
+    width: auto;
+    flex: 1 1 120px;
+  }
+
+  .night-ticket {
+    min-height: 0;
+    padding: 28px 22px;
+  }
+
+  .night-ticket h3 {
+    font-size: 3.7rem;
+  }
+
+  .ticket-topline {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ticket-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .ticket-actions .button {
+    width: 100%;
+  }
+
   .tracking-copy h2 {
     font-size: 4.3rem;
   }
@@ -3102,6 +3589,39 @@ img {
 
   .passport-card {
     width: min(92%, 560px);
+  }
+
+  .passport-explainer {
+    margin-top: 10px;
+    padding-top: 55px;
+  }
+
+  .passport-explainer-head {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .passport-explainer-head p {
+    grid-column: auto;
+  }
+
+  .passport-journey,
+  .passport-value {
+    grid-template-columns: 1fr;
+  }
+
+  .passport-journey article {
+    min-height: 210px;
+    border-right: 0;
+    border-bottom: 1px solid rgb(244 233 210 / 18%);
+  }
+
+  .passport-journey article:last-child {
+    border-bottom: 0;
+  }
+
+  .passport-value article {
+    padding: 26px;
   }
 
   .visit {

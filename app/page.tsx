@@ -76,6 +76,10 @@ type PassportMember = {
   existing?: boolean;
 };
 
+type NightGroup = "duo" | "family" | "crew";
+type NightMood = "slow" | "celebrate" | "match";
+type NightDiet = "veg" | "nonveg" | "mixed";
+
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
@@ -108,6 +112,9 @@ export default function Home() {
   const [feedbackError, setFeedbackError] = useState("");
   const [feedbackSent, setFeedbackSent] = useState(false);
   const [menuExpanded, setMenuExpanded] = useState(false);
+  const [nightGroup, setNightGroup] = useState<NightGroup>("duo");
+  const [nightMood, setNightMood] = useState<NightMood>("slow");
+  const [nightDiet, setNightDiet] = useState<NightDiet>("mixed");
   const clockRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll();
   const { scrollYProgress: clockProgress } = useScroll({
@@ -148,6 +155,56 @@ export default function Home() {
   const cartTotal = cartLines.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const hasMenuFilters = activeCategory !== "All" || dietFilter !== "all" || Boolean(menuSearch.trim());
   const catalogueItems = menuExpanded || hasMenuFilters ? visibleMenu : visibleMenu.slice(0, 12);
+  const nightPlan = useMemo(() => {
+    const recommendations: Record<NightDiet, Record<NightGroup, string[]>> = {
+      veg: {
+        duo: ["peppy-paneer", "chilli-garlic-bites", "mint-mojito", "sizzling-brownie"],
+        family: ["paneer-biryani", "veg-loaded", "veg-nuggets", "waffle-overloaded"],
+        crew: ["kaju-paneer-biryani", "tandoori-paneer", "cheesy-fries", "waffle-overloaded"],
+      },
+      nonveg: {
+        duo: ["chicken-peri-peri", "chicken-popcorn", "mint-mojito", "sizzling-brownie"],
+        family: ["chicken-dum-biryani", "bbq-chicken-pizza", "fried-chicken-momos", "waffle-overloaded"],
+        crew: ["chicken-fry-biryani", "tandoori-chicken-pizza", "chicken-loaded-fries", "waffle-overloaded"],
+      },
+      mixed: {
+        duo: ["bbq-chicken-pizza", "chilli-garlic-bites", "mint-mojito", "sizzling-brownie"],
+        family: ["chicken-dum-biryani", "veg-loaded", "chicken-popcorn", "waffle-overloaded"],
+        crew: ["chicken-fry-biryani", "tandoori-paneer", "chicken-loaded-fries", "waffle-overloaded"],
+      },
+    };
+    const quantities = nightGroup === "crew" ? [2, 2, 2, 1] : nightGroup === "family" ? [1, 1, 2, 1] : [1, 1, 2, 1];
+    const items = recommendations[nightDiet][nightGroup].flatMap((id, index) => {
+      const item = fullMenu.find((entry) => entry.id === id);
+      return item ? [{ ...item, quantity: quantities[index] }] : [];
+    });
+    const moodCopy = {
+      slow: {
+        title: "The soft-light chapter",
+        seat: "A quieter corner with room to linger",
+        time: "Arrive around 6:30 PM",
+        cue: "Start cool, share slowly, save the final plate for dessert.",
+      },
+      celebrate: {
+        title: "The table-with-a-reason",
+        seat: "A celebration-ready long table",
+        time: "Arrive around 7:15 PM",
+        cue: "Begin with a table snack and let the mains land together.",
+      },
+      match: {
+        title: "The screen-side spread",
+        seat: "The lounge near the match-night screen",
+        time: "Arrive 30 minutes before play",
+        cue: "Load the table before kickoff and keep dessert for the final whistle.",
+      },
+    }[nightMood];
+    return {
+      ...moodCopy,
+      items,
+      total: items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+      people: nightGroup === "duo" ? "2 people" : nightGroup === "family" ? "4–6 people" : "7–10 people",
+    };
+  }, [nightDiet, nightGroup, nightMood]);
 
   const changeCart = (id: string, change: number) => {
     if (change > 0) {
@@ -161,6 +218,19 @@ export default function Home() {
       else next[id] = nextQuantity;
       return next;
     });
+  };
+
+  const addNightPlan = () => {
+    setOrderReference("");
+    setOrderError("");
+    setCart((current) => {
+      const next = { ...current };
+      nightPlan.items.forEach((item) => {
+        next[item.id] = (next[item.id] || 0) + item.quantity;
+      });
+      return next;
+    });
+    setCartOpen(true);
   };
 
   const orderOnline = () => {
@@ -326,6 +396,7 @@ export default function Home() {
           <a href="#story">Our story</a>
           <a href="#menu">Menu</a>
           <a href="#gallery">The space</a>
+          <a href="#composer">Plan a night</a>
           <a href="#passport">Passport</a>
           <a href="#visit">Visit</a>
           <button className="nav-track" onClick={openLookup}>Track</button>
@@ -351,9 +422,16 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
           >
-            {["story", "menu", "gallery", "passport", "visit"].map((item) => (
-              <a key={item} href={`#${item}`} onClick={() => setMenuOpen(false)}>
-                {item === "gallery" ? "The space" : item}
+            {[
+              { id: "story", label: "Our story" },
+              { id: "menu", label: "Menu" },
+              { id: "gallery", label: "The space" },
+              { id: "composer", label: "Plan a night" },
+              { id: "passport", label: "Passport" },
+              { id: "visit", label: "Visit" },
+            ].map((item) => (
+              <a key={item.id} href={`#${item.id}`} onClick={() => setMenuOpen(false)}>
+                {item.label}
               </a>
             ))}
             <button onClick={openBooking}>Reserve a table</button>
@@ -786,10 +864,129 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="night-composer section" id="composer">
+        <div className="composer-heading">
+          <motion.div className="section-label light" {...reveal}>
+            <span>06</span> The Folha Night Composer
+          </motion.div>
+          <motion.h2 {...reveal}>Don’t pick a dish.<br /><em>Compose the night.</em></motion.h2>
+          <motion.p {...reveal}>
+            Tell us who is coming, what the night feels like and how the table eats.
+            Folha turns it into a real menu route in seconds.
+          </motion.p>
+        </div>
+
+        <div className="composer-grid">
+          <motion.div className="composer-controls" {...reveal}>
+            <fieldset>
+              <legend><span>01</span> Who has a chair?</legend>
+              <div>
+                {[
+                  { id: "duo", label: "Just us two" },
+                  { id: "family", label: "The family" },
+                  { id: "crew", label: "The whole crew" },
+                ].map((option) => (
+                  <button
+                    type="button"
+                    key={option.id}
+                    className={nightGroup === option.id ? "active" : ""}
+                    onClick={() => setNightGroup(option.id as NightGroup)}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend><span>02</span> What is the energy?</legend>
+              <div>
+                {[
+                  { id: "slow", label: "Soft & slow" },
+                  { id: "celebrate", label: "We’re celebrating" },
+                  { id: "match", label: "Match-night loud" },
+                ].map((option) => (
+                  <button
+                    type="button"
+                    key={option.id}
+                    className={nightMood === option.id ? "active" : ""}
+                    onClick={() => setNightMood(option.id as NightMood)}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend><span>03</span> How does the table eat?</legend>
+              <div>
+                {[
+                  { id: "veg", label: "Veg" },
+                  { id: "nonveg", label: "Non-veg" },
+                  { id: "mixed", label: "A bit of both" },
+                ].map((option) => (
+                  <button
+                    type="button"
+                    key={option.id}
+                    className={nightDiet === option.id ? "active" : ""}
+                    onClick={() => setNightDiet(option.id as NightDiet)}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+          </motion.div>
+
+          <AnimatePresence mode="wait">
+            <motion.article
+              className="night-ticket"
+              key={`${nightGroup}-${nightMood}-${nightDiet}`}
+              initial={{ opacity: 0, rotate: -1.5, y: 24 }}
+              animate={{ opacity: 1, rotate: 0, y: 0 }}
+              exit={{ opacity: 0, rotate: 1.5, y: -18 }}
+              transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <div className="ticket-topline">
+                <span>COMPOSED FOR {nightPlan.people.toUpperCase()}</span>
+                <b>FOLHA / TONIGHT</b>
+              </div>
+              <h3>{nightPlan.title}</h3>
+              <div className="ticket-route">
+                <span><MapPin /> {nightPlan.seat}</span>
+                <span><Clock3 /> {nightPlan.time}</span>
+              </div>
+              <p>{nightPlan.cue}</p>
+              <div className="ticket-menu">
+                {nightPlan.items.map((item, index) => (
+                  <div key={item.id}>
+                    <i>0{index + 1}</i>
+                    <span><strong>{item.name}</strong><small>{item.quantity} × ₹{item.price}</small></span>
+                    <b>₹{item.quantity * item.price}</b>
+                  </div>
+                ))}
+              </div>
+              <div className="ticket-total">
+                <span>Suggested spread · estimated</span>
+                <strong>₹{nightPlan.total}</strong>
+              </div>
+              <div className="ticket-actions">
+                <button className="button button-primary" onClick={addNightPlan}>
+                  Add this night to bag <ShoppingBag />
+                </button>
+                <button className="button button-ghost" onClick={openBooking}>
+                  Reserve its table
+                </button>
+              </div>
+              <small className="ticket-note">Suggestions use Café Folha’s listed menu. Availability and final amount are confirmed by the café.</small>
+            </motion.article>
+          </AnimatePresence>
+        </div>
+      </section>
+
       <section className="tracking section" id="track">
         <motion.div className="tracking-copy" {...reveal}>
           <div className="section-label">
-            <span>06</span> Folha live desk
+            <span>07</span> Folha live desk
           </div>
           <h2>Your night,<br /><em>in your pocket.</em></h2>
           <p>
@@ -838,7 +1035,7 @@ export default function Home() {
         </motion.div>
         <motion.div className="passport-copy" {...reveal}>
           <div className="section-label light">
-            <span>07</span> Regulars get remembered
+            <span>08</span> Regulars get remembered
           </div>
           <h2>Come back.<br /><em>Leave with more.</em></h2>
           <p>
@@ -854,12 +1051,48 @@ export default function Home() {
             Open my Passport <ArrowRight />
           </button>
         </motion.div>
+        <motion.div className="passport-explainer" {...reveal}>
+          <div className="passport-explainer-head">
+            <span>NOT JUST A PRETTY CARD</span>
+            <h3>Here’s exactly how it works.</h3>
+            <p>No app, points maze or mystery reward. The café stays in control; the guest always knows their progress.</p>
+          </div>
+          <div className="passport-journey">
+            <article>
+              <i>01</i>
+              <strong>Open it once</strong>
+              <p>Enter a name and mobile number. The same details retrieve the same personal Passport code later.</p>
+            </article>
+            <article>
+              <i>02</i>
+              <strong>Show it after a visit</strong>
+              <p>The Café Folha team verifies a qualifying visit and adds the stamp from its private guest desk.</p>
+            </article>
+            <article>
+              <i>03</i>
+              <strong>Unlock at five</strong>
+              <p>Five approved stamps make the member reward-ready. The café confirms the treat and records redemption.</p>
+            </article>
+          </div>
+          <div className="passport-value">
+            <article>
+              <span>FOR GUESTS</span>
+              <strong>A reward they can actually see coming.</strong>
+              <p>Fast retrieval, visible progress and recognition without downloading another app.</p>
+            </article>
+            <article>
+              <span>FOR CAFÉ FOLHA</span>
+              <strong>More return visits, with less guesswork.</strong>
+              <p>A permission-light regulars list, measurable loyalty and a natural reason to invite guests back.</p>
+            </article>
+          </div>
+        </motion.div>
       </section>
 
       <section className="visit section" id="visit">
         <motion.div className="visit-copy" {...reveal}>
           <div className="section-label light">
-            <span>08</span> Your table is this way
+            <span>09</span> Your table is this way
           </div>
           <h2>Tonight looks good from here.</h2>
           <p>
