@@ -121,7 +121,7 @@ export default function Home() {
     target: clockRef,
     offset: ["start end", "end start"],
     layoutEffect: false,
-  });
+  } as Parameters<typeof useScroll>[0]);
   const heroY = useTransform(scrollYProgress, [0, 0.35], [0, 120]);
   const heroScale = useTransform(scrollYProgress, [0, 0.35], [1, 1.08]);
   const morningOpacity = useTransform(clockProgress, [0.04, 0.16, 0.31, 0.42], [0, 1, 1, 0]);

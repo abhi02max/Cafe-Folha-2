@@ -1,0 +1,50 @@
+:root {
+  --font-display: "Cormorant Garamond";
+  --font-sans: "DM Sans";
+}
+
+.preview-ribbon {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 95;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #07191f;
+  background: rgb(244 233 210 / 92%);
+  border: 1px solid rgb(7 25 31 / 18%);
+  border-radius: 100px;
+  box-shadow: 0 14px 40px rgb(0 0 0 / 20%);
+  backdrop-filter: blur(14px);
+  font-size: 0.64rem;
+}
+
+.preview-ribbon span {
+  padding: 5px 8px;
+  color: #f4e9d2;
+  background: #ae553f;
+  border-radius: 100px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.preview-ribbon strong {
+  font-weight: 700;
+}
+
+@media (max-width: 620px) {
+  .preview-ribbon {
+    left: 18px;
+    right: 18px;
+    bottom: 82px;
+    justify-content: center;
+  }
+
+  .preview-ribbon strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
